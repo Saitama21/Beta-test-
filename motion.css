@@ -1,0 +1,134 @@
+.transfer-art{z-index:1}
+.art-glow{z-index:2}
+.transfer-motion{
+  position:absolute;
+  inset:0;
+  z-index:4;
+  width:100%;
+  height:100%;
+  pointer-events:none;
+  overflow:hidden;
+  mix-blend-mode:screen;
+  filter:saturate(1.08);
+}
+.transfer-motion .flow{
+  fill:none;
+  stroke-linecap:round;
+  vector-effect:non-scaling-stroke;
+  filter:drop-shadow(0 0 7px currentColor);
+}
+.transfer-motion .flow-a{
+  stroke:url(#motionFlowA);
+  stroke-width:4.2;
+  stroke-dasharray:18 28 7 24;
+  animation:transferDashA 3.4s linear infinite,transferPulse 2.8s ease-in-out infinite;
+}
+.transfer-motion .flow-b{
+  stroke:url(#motionFlowB);
+  stroke-width:2.6;
+  stroke-dasharray:8 24 26 31;
+  opacity:.7;
+  animation:transferDashB 4.6s linear infinite,transferPulse 3.5s ease-in-out -.8s infinite;
+}
+.transfer-motion .flow-c{
+  stroke:url(#motionFlowC);
+  stroke-width:1.8;
+  stroke-dasharray:3 19 12 26;
+  opacity:.58;
+  animation:transferDashA 5.7s linear reverse infinite;
+}
+.transfer-motion .money-digit{
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;
+  font-weight:760;
+  text-anchor:middle;
+  dominant-baseline:middle;
+  paint-order:stroke fill;
+  stroke:#09111f99;
+  stroke-width:2px;
+  filter:drop-shadow(0 0 8px currentColor);
+  opacity:.15;
+  transform-box:fill-box;
+  transform-origin:center;
+}
+.transfer-motion .d1{fill:#7dcbff;color:#69bfff;font-size:31px;animation:digitFlight 4.4s cubic-bezier(.45,0,.2,1) -.2s infinite}
+.transfer-motion .d2{fill:#ff72af;color:#ff438e;font-size:22px;animation:digitFlight 4.9s cubic-bezier(.45,0,.2,1) -1.5s infinite}
+.transfer-motion .d3{fill:#fff;color:#cde8ff;font-size:18px;animation:digitFlight 5.2s cubic-bezier(.45,0,.2,1) -2.7s infinite}
+.transfer-motion .d4{fill:#73c7ff;color:#43a9ff;font-size:25px;animation:digitFlight 4.7s cubic-bezier(.45,0,.2,1) -3.6s infinite}
+.transfer-motion .d5{fill:#ff87bd;color:#ff4f99;font-size:19px;animation:digitFlight 5.5s cubic-bezier(.45,0,.2,1) -4.3s infinite}
+.transfer-motion .spark{
+  transform-box:fill-box;
+  transform-origin:center;
+  opacity:0;
+  filter:drop-shadow(0 0 5px currentColor);
+}
+.transfer-motion .s1{fill:#6cc9ff;color:#55bfff;animation:sparkTravel 3.8s ease-in-out -.5s infinite}
+.transfer-motion .s2{fill:#ff5e9f;color:#ff397d;animation:sparkTravel 4.3s ease-in-out -2.1s infinite}
+.transfer-motion .s3{fill:#fff;color:#fff;animation:sparkTravel 4.8s ease-in-out -3.2s infinite}
+.transfer-motion .receiver-glow{
+  fill:none;
+  stroke:#ff4b83;
+  stroke-width:2;
+  opacity:.18;
+  transform-box:fill-box;
+  transform-origin:center;
+  animation:receiverBreathe 2.9s ease-in-out infinite;
+  filter:drop-shadow(0 0 10px #ff2e69);
+}
+.transfer-motion .sender-glow{
+  fill:none;
+  stroke:#4ab9ff;
+  stroke-width:1.6;
+  opacity:.15;
+  animation:senderBreathe 3.3s ease-in-out -.7s infinite;
+  filter:drop-shadow(0 0 9px #2b9fff);
+}
+.transfer-scene::after{
+  content:"";
+  position:absolute;
+  z-index:5;
+  inset:0;
+  pointer-events:none;
+  background:linear-gradient(105deg,transparent 30%,#ffffff0a 43%,#ff4b8d11 50%,transparent 58%);
+  transform:translateX(-120%);
+  animation:sceneSweep 6.8s cubic-bezier(.4,0,.2,1) 1.2s infinite;
+}
+
+@keyframes transferDashA{to{stroke-dashoffset:-154}}
+@keyframes transferDashB{to{stroke-dashoffset:178}}
+@keyframes transferPulse{0%,100%{opacity:.45}50%{opacity:1}}
+@keyframes digitFlight{
+  0%{opacity:0;transform:translate(-44px,18px) scale(.72) rotate(-7deg)}
+  18%{opacity:.78}
+  52%{opacity:1;transform:translate(0,-7px) scale(1.08) rotate(2deg)}
+  82%{opacity:.7}
+  100%{opacity:0;transform:translate(58px,-19px) scale(.78) rotate(8deg)}
+}
+@keyframes sparkTravel{
+  0%{opacity:0;transform:translate(-70px,18px) scale(.35)}
+  20%{opacity:.9}
+  52%{opacity:1;transform:translate(0,-3px) scale(1)}
+  100%{opacity:0;transform:translate(92px,-16px) scale(.3)}
+}
+@keyframes receiverBreathe{50%{opacity:.55;transform:scale(1.025)}}
+@keyframes senderBreathe{50%{opacity:.48;transform:translateY(-2px)}}
+@keyframes sceneSweep{0%,58%{transform:translateX(-120%);opacity:0}67%{opacity:.65}82%{transform:translateX(120%);opacity:.18}100%{transform:translateX(120%);opacity:0}}
+
+@media (max-height:680px){
+  .transfer-motion .flow-a{stroke-width:3.4}
+  .transfer-motion .flow-b{stroke-width:2.2}
+  .transfer-motion .money-digit{font-size:85%}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .transfer-motion .flow,
+  .transfer-motion .money-digit,
+  .transfer-motion .spark,
+  .transfer-motion .receiver-glow,
+  .transfer-motion .sender-glow,
+  .transfer-scene::after{animation:none!important}
+  .transfer-motion .flow-a{opacity:.55}
+  .transfer-motion .flow-b,.transfer-motion .flow-c{opacity:.28}
+  .transfer-motion .money-digit{opacity:.35;transform:none}
+  .transfer-motion .spark{opacity:.2;transform:none}
+  .transfer-motion .receiver-glow,.transfer-motion .sender-glow{opacity:.22}
+}
