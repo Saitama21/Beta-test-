@@ -1,61 +1,54 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 390" preserveAspectRatio="xMidYMid slice">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 805 390" role="img" aria-hidden="true">
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#071426"/><stop offset=".55" stop-color="#030813"/><stop offset="1" stop-color="#130817"/></linearGradient>
-    <radialGradient id="blueOrb" cx=".12" cy=".5" r=".58"><stop stop-color="#218eff" stop-opacity=".26"/><stop offset="1" stop-color="#218eff" stop-opacity="0"/></radialGradient>
-    <radialGradient id="pinkOrb" cx=".88" cy=".5" r=".58"><stop stop-color="#ff235f" stop-opacity=".30"/><stop offset="1" stop-color="#ff235f" stop-opacity="0"/></radialGradient>
-    <linearGradient id="flowA" x1="0" x2="1"><stop stop-color="#45b6ff"/><stop offset=".35" stop-color="#f6fbff"/><stop offset=".65" stop-color="#ff4bb8"/><stop offset="1" stop-color="#ff245f"/></linearGradient>
-    <linearGradient id="flowB" x1="0" x2="1"><stop stop-color="#5c78ff"/><stop offset=".48" stop-color="#2bbdff"/><stop offset="1" stop-color="#ff2c78"/></linearGradient>
-    <linearGradient id="card" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ff376f"/><stop offset=".5" stop-color="#d10d48"/><stop offset="1" stop-color="#67091f"/></linearGradient>
-    <linearGradient id="phone" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#18365e"/><stop offset=".45" stop-color="#0b1530"/><stop offset="1" stop-color="#02060c"/></linearGradient>
-    <filter id="blur30" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="30"/></filter>
-    <filter id="glow" x="-40%" y="-70%" width="180%" height="240%"><feGaussianBlur stdDeviation="6" result="g"/><feMerge><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-    <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%"><feDropShadow dx="0" dy="16" stdDeviation="14" flood-color="#000" flood-opacity=".74"/></filter>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#081224"/><stop offset=".5" stop-color="#040914"/><stop offset="1" stop-color="#090716"/></linearGradient>
+    <radialGradient id="blueGlow" cx=".28" cy=".54" r=".54"><stop offset="0" stop-color="#278cff" stop-opacity=".36"/><stop offset="1" stop-color="#278cff" stop-opacity="0"/></radialGradient>
+    <radialGradient id="pinkGlow" cx=".79" cy=".52" r=".56"><stop offset="0" stop-color="#ff285f" stop-opacity=".42"/><stop offset="1" stop-color="#ff285f" stop-opacity="0"/></radialGradient>
+    <linearGradient id="phone" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#173760"/><stop offset=".45" stop-color="#0b1731"/><stop offset="1" stop-color="#02050a"/></linearGradient>
+    <linearGradient id="screen" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#102243"/><stop offset=".46" stop-color="#15123b"/><stop offset="1" stop-color="#03060d"/></linearGradient>
+    <linearGradient id="card" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff3d72"/><stop offset=".48" stop-color="#d50b42"/><stop offset="1" stop-color="#720922"/></linearGradient>
+    <linearGradient id="cardGlow" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ff9ebc"/><stop offset=".45" stop-color="#fff"/><stop offset="1" stop-color="#ff2a64"/></linearGradient>
+    <linearGradient id="ribbonA" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#53bfff"/><stop offset=".28" stop-color="#90dcff"/><stop offset=".47" stop-color="#fff"/><stop offset=".69" stop-color="#ff69bd"/><stop offset="1" stop-color="#ff2a68"/></linearGradient>
+    <linearGradient id="ribbonB" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#3c8dff"/><stop offset=".44" stop-color="#6fcaff"/><stop offset=".71" stop-color="#be6cff"/><stop offset="1" stop-color="#ff3d91"/></linearGradient>
+    <linearGradient id="ribbonC" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ff86c5"/><stop offset=".52" stop-color="#f4fbff"/><stop offset="1" stop-color="#ff366f"/></linearGradient>
+    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="7" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <filter id="glow2" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="12" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <filter id="shadow" x="-40%" y="-40%" width="180%" height="180%"><feDropShadow dx="0" dy="16" stdDeviation="14" flood-color="#000" flood-opacity=".65"/></filter>
   </defs>
-  <rect width="800" height="390" rx="32" fill="url(#bg)"/>
-  <rect width="800" height="390" rx="32" fill="url(#blueOrb)"/><rect width="800" height="390" rx="32" fill="url(#pinkOrb)"/>
-  <ellipse cx="390" cy="320" rx="250" ry="60" fill="#125bd9" opacity=".12" filter="url(#blur30)"/>
-
-  <g transform="translate(72 62) rotate(-7 74 128)" filter="url(#shadow)">
-    <rect x="0" y="0" width="146" height="260" rx="34" fill="url(#phone)" stroke="#69b6ff" stroke-opacity=".72" stroke-width="2"/>
-    <rect x="13" y="18" width="120" height="225" rx="25" fill="#030812" stroke="#ffffff" stroke-opacity=".08"/>
-    <rect x="47" y="12" width="53" height="8" rx="5" fill="#01040a"/>
-    <circle cx="73" cy="72" r="46" fill="#714cff" opacity=".12" filter="url(#blur30)"/>
-    <text x="73" y="122" text-anchor="middle" fill="#ecf5ff" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif" font-size="18" font-weight="520">Відправляй</text>
-    <text x="73" y="144" text-anchor="middle" fill="#ecf5ff" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif" font-size="18" font-weight="520">легко</text>
-    <path d="M93 171 L55 194 73 198 80 215 93 171Z M73 198 L93 171" fill="none" stroke="#39bdff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)"/>
+  <rect width="805" height="390" rx="28" fill="url(#bg)"/>
+  <rect width="805" height="390" rx="28" fill="url(#blueGlow)"/>
+  <rect width="805" height="390" rx="28" fill="url(#pinkGlow)"/>
+  <g opacity=".35" fill="#fff"><circle cx="340" cy="69" r="1.2"/><circle cx="454" cy="46" r="1"/><circle cx="511" cy="88" r="1.1"/><circle cx="565" cy="50" r="1.2"/><circle cx="620" cy="91" r="1"/><circle cx="679" cy="55" r="1.3"/></g>
+  <g opacity=".58" fill="#ff4a89"><circle cx="520" cy="113" r="2"/><circle cx="553" cy="71" r="1.5"/><circle cx="599" cy="101" r="1.8"/><circle cx="642" cy="83" r="1.3"/><circle cx="674" cy="115" r="1.7"/><circle cx="703" cy="92" r="1.2"/></g>
+  <g transform="translate(35 34) rotate(-6 92 165)" filter="url(#shadow)">
+    <rect x="0" y="0" width="172" height="330" rx="42" fill="url(#phone)" stroke="#65aaff" stroke-opacity=".66" stroke-width="2"/>
+    <rect x="11" y="12" width="150" height="304" rx="34" fill="url(#screen)" stroke="#273e6a" stroke-opacity=".9"/>
+    <rect x="58" y="12" width="56" height="12" rx="0 0 8 8" fill="#01030a"/>
+    <ellipse cx="88" cy="122" rx="80" ry="98" fill="#5131ff" opacity=".08"/>
+    <text x="86" y="156" text-anchor="middle" fill="#f5f8ff" font-family="Arial,sans-serif" font-size="21">Відправляй</text><text x="86" y="181" text-anchor="middle" fill="#f5f8ff" font-family="Arial,sans-serif" font-size="21">легко</text>
+    <g transform="translate(57 220)" fill="none" stroke="#48c7ff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)"><path d="M55 0 17 38M55 0 39 61 17 38 0 22 55 0Z"/></g>
   </g>
-
   <g fill="none" stroke-linecap="round" filter="url(#glow)">
-    <path d="M196 225 C278 131 350 292 444 195 S588 127 676 190" stroke="url(#flowA)" stroke-width="10" opacity=".96"/>
-    <path d="M195 184 C280 284 348 112 451 181 S583 274 682 202" stroke="url(#flowB)" stroke-width="5" opacity=".7"/>
-    <path d="M210 243 C310 174 375 238 455 217 S575 153 680 218" stroke="#ff76bb" stroke-width="3" opacity=".56"/>
+    <path d="M165 232 C250 118 307 315 408 196 S560 109 636 183" stroke="url(#ribbonA)" stroke-width="9" opacity=".98"/>
+    <path d="M170 191 C253 294 329 102 425 177 S542 292 637 204" stroke="url(#ribbonB)" stroke-width="6" opacity=".76"/>
+    <path d="M181 247 C270 164 331 247 422 212 S557 146 647 211" stroke="url(#ribbonC)" stroke-width="4.5" opacity=".72"/>
+    <path d="M173 232 C257 122 314 312 414 196" stroke="#fff" stroke-width="2" opacity=".72"/>
   </g>
-
-  <g font-family="-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif" font-weight="700" text-anchor="middle">
-    <text x="329" y="111" font-size="28" fill="#63b8ff" filter="url(#glow)">4</text>
-    <text x="375" y="144" font-size="22" fill="#ffffff" filter="url(#glow)">3</text>
-    <text x="420" y="205" font-size="31" fill="#ff6fac" filter="url(#glow)">0</text>
-    <text x="472" y="153" font-size="22" fill="#ffffff" filter="url(#glow)">2</text>
-    <text x="514" y="223" font-size="28" fill="#66beff" filter="url(#glow)">5</text>
-    <text x="350" y="248" font-size="24" fill="#ff76b7" filter="url(#glow)">9</text>
-    <text x="449" y="270" font-size="26" fill="#ffffff" filter="url(#glow)">8</text>
-    <text x="546" y="126" font-size="18" fill="#ff5e9d" filter="url(#glow)">3</text>
-    <text x="291" y="201" font-size="17" fill="#ffffff" opacity=".9">7</text>
-    <text x="582" y="263" font-size="18" fill="#ff7ab4">2</text>
+  <g fill="none" stroke="#378fff" stroke-width="2" opacity=".22"><path d="M182 270 C271 188 345 323 456 240 S590 164 662 210"/><path d="M190 160 C293 70 362 212 451 154 S571 70 668 145"/></g>
+  <g font-family="Arial,sans-serif" font-weight="600" text-anchor="middle" filter="url(#glow)">
+    <text x="328" y="101" fill="#74b8ff" font-size="52">4</text><text x="412" y="111" fill="#8dc5ff" font-size="50">3</text><text x="460" y="64" fill="#ff5e9d" font-size="27">2</text>
+    <text x="360" y="169" fill="#fff" font-size="28">3</text><text x="402" y="201" fill="#ff5b9d" font-size="49">0</text><text x="471" y="161" fill="#81c8ff" font-size="33">2</text>
+    <text x="298" y="202" fill="#75caff" font-size="30">7</text><text x="343" y="225" fill="#ff8fbd" font-size="27">9</text><text x="454" y="228" fill="#8bd2ff" font-size="42">5</text>
+    <text x="359" y="267" fill="#ff5d9e" font-size="42">3</text><text x="409" y="286" fill="#ffb2d0" font-size="30">8</text><text x="468" y="271" fill="#88cfff" font-size="28">2</text>
+    <text x="330" y="316" fill="#ff6fab" font-size="19">2</text><text x="392" y="328" fill="#ff8fbd" font-size="18">3</text><text x="446" y="318" fill="#7fc4ff" font-size="18">1</text>
   </g>
-  <g fill="#ff4f91" opacity=".76"><circle cx="545" cy="88" r="2.4"/><circle cx="563" cy="99" r="1.4"/><circle cx="582" cy="79" r="1.8"/><circle cx="600" cy="105" r="1.4"/><circle cx="624" cy="96" r="2"/></g>
-
-  <g transform="translate(548 104) rotate(7 104 70)" filter="url(#shadow)">
-    <rect x="0" y="0" width="210" height="140" rx="23" fill="url(#card)" stroke="#ffb1c8" stroke-width="2"/>
-    <rect x="14" y="13" width="182" height="112" rx="16" fill="none" stroke="#ffffff" stroke-opacity=".16"/>
-    <text x="25" y="40" fill="#ffcad8" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif" font-size="28" font-weight="900">PUMB</text>
-    <rect x="27" y="57" width="31" height="23" rx="6" fill="#e8ca87"/>
-    <path d="M168 57 q18 18 0 36 M174 51 q27 27 0 49" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".92"/>
-    <text x="132" y="116" fill="#fff" font-family="Georgia,serif" font-style="italic" font-size="27" font-weight="700">VISA</text>
+  <g transform="translate(520 54) rotate(-7 118 95)" filter="url(#shadow)">
+    <rect x="0" y="0" width="248" height="192" rx="23" fill="url(#card)" stroke="url(#cardGlow)" stroke-width="3" filter="url(#glow2)"/>
+    <rect x="11" y="11" width="226" height="170" rx="18" fill="none" stroke="#ffffff" stroke-opacity=".15"/>
+    <text x="22" y="46" fill="#ffabc3" font-family="Arial,sans-serif" font-size="28" font-weight="900" font-style="italic">PUMB</text>
+    <rect x="22" y="80" width="38" height="29" rx="6" fill="#e5d69a"/><path d="M30 80v29M42 80v29M22 94h38" stroke="#a68843" stroke-width="1" opacity=".75"/>
+    <g transform="translate(188 76)" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"><path d="M0 6c8 7 8 21 0 28"/><path d="M9 2c11 10 11 27 0 37"/><path d="M18-2c15 14 15 35 0 48"/></g>
+    <text x="168" y="158" fill="#fff" font-family="Arial,sans-serif" font-size="31" font-weight="900" font-style="italic">VISA</text><path d="M18 187h211" stroke="#ff89aa" stroke-opacity=".38"/>
   </g>
-
-  <text x="698" y="309" text-anchor="middle" fill="#b8c6da" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif" font-size="13" letter-spacing="3">КОШТИ</text>
-  <text x="698" y="331" text-anchor="middle" fill="#b8c6da" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif" font-size="13" letter-spacing="3">ЗАВЖДИ</text>
-  <text x="698" y="353" text-anchor="middle" fill="#b8c6da" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif" font-size="13" letter-spacing="3">В РУСІ</text>
-  <rect x="681" y="366" width="34" height="4" rx="2" fill="#ff245f" filter="url(#glow)"/>
+  <g fill="#ff4f8f" opacity=".66" filter="url(#glow)"><circle cx="538" cy="131" r="2.4"/><circle cx="573" cy="158" r="1.8"/><circle cx="611" cy="139" r="2"/><circle cx="645" cy="182" r="1.7"/><circle cx="700" cy="162" r="2.1"/><circle cx="746" cy="191" r="1.6"/></g>
+  <g transform="translate(690 292)"><text x="0" y="0" fill="#b9c8df" font-family="Arial,sans-serif" font-size="16" letter-spacing="3">КОШТИ</text><text x="0" y="25" fill="#b9c8df" font-family="Arial,sans-serif" font-size="16" letter-spacing="3">ЗАВЖДИ</text><text x="0" y="50" fill="#b9c8df" font-family="Arial,sans-serif" font-size="16" letter-spacing="3">В РУСІ</text><rect x="0" y="66" width="18" height="4" rx="2" fill="#ff245f" filter="url(#glow)"/></g>
 </svg>
