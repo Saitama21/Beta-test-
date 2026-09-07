@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#030712">
+<meta name="color-scheme" content="dark">
+<meta name="format-detection" content="telephone=no">
+<title>PUMB Personal Card</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link rel="stylesheet" href="foundation.css">
+<link rel="stylesheet" href="interactions.css">
+<link rel="stylesheet" href="transfer.css">
+<link rel="stylesheet" href="motion.css">
+
+</head>
+<body>
+<div class="ambient" aria-hidden="true"></div>
+<main class="app-shell">
+  <header class="header" aria-label="PUMB особиста сторінка">
+    <div class="brand">PUMB</div>
+    <div class="brand-divider" aria-hidden="true"></div>
+    <div class="brand-copy">особиста<br>сторінка</div>
+    <div class="bell" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg>
+    </div>
+  </header>
+
+  <div class="stack">
+    <section class="hero-card glass-panel" id="heroCard" aria-label="Картка отримувача">
+      <div class="shine" aria-hidden="true"></div>
+      <img class="hero-decor" src="assets/hero-decor.svg" alt="" aria-hidden="true">
+
+      <div class="hero-copy">
+        <div class="eyebrow">Одержувач</div>
+        <div class="person-name">Єрошов Іван Сергійович</div>
+        <div class="eyebrow number-label">Номер картки</div>
+        <div class="card-number">4314 1402 1172 6887</div>
+        <div class="helper">Натисни кнопку — скопіюється номер без пробілів.</div>
+      </div>
+
+      <div class="copy-zone" id="copyZone">
+        <button class="copy-orb" id="copyBtn" type="button" aria-label="Скопіювати номер картки">
+          <i class="bubble b1" aria-hidden="true"></i><i class="bubble b2" aria-hidden="true"></i><i class="bubble b3" aria-hidden="true"></i>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="11" height="11" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>
+          <span class="copy-check" aria-hidden="true"></span>
+        </button>
+        <div class="copy-status" id="copyStatus" aria-live="polite">✓ Номер скопійовано</div>
+      </div>
+</section>
+
+    <section class="transfer-card glass-panel" aria-label="Переказ коштів">
+      <div class="transfer-head">
+        <div class="transfer-title-wrap">
+          <div class="plane-badge" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M21 3 9.5 14.5M21 3l-7 18-4.5-6.5L3 10l18-7Z"/></svg></div>
+          <div class="transfer-title">ПЕРЕКАЗ КОШТІВ</div>
+        </div>
+        <div class="live-pill"><span class="live-dot" aria-hidden="true"></span>LIVE</div>
+      </div>
+
+      <div class="transfer-scene" aria-hidden="true"><img class="transfer-art" src="assets/transfer-art.svg" alt=""><div class="art-glow"></div></div>
+
+      <div class="rates" aria-label="Курси НБУ">
+        <div class="rate"><span class="flag-badge" aria-hidden="true">🇺🇸</span><span class="rate-line"><b class="rate-code">USD</b><span class="rate-value" id="usdVal">44.56 ₴</span></span></div>
+        <div class="sync-pill" id="syncPill" aria-label="Курси оновлюються автоматично"><svg viewBox="0 0 24 24"><path d="M20 7v5h-5"/><path d="M4 17v-5h5"/><path d="M6.1 8a7 7 0 0 1 11.4-2.1L20 8M4 16l2.5 2.1A7 7 0 0 0 17.9 16"/></svg></div>
+        <div class="rate"><span class="flag-badge" aria-hidden="true">🇪🇺</span><span class="rate-line"><b class="rate-code">EUR</b><span class="rate-value" id="eurVal">51.79 ₴</span></span></div>
+      </div>
+    </section>
+
+    <section class="security glass-panel" aria-label="Безпека">
+      <span class="security-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3 19 6v5c0 5-3 8-7 10-4-2-7-5-7-10V6l7-3Z"/><path d="M9.5 12.2 11.3 14 15 9.7"/></svg></span>
+      <span class="security-copy">Ваші кошти під надійним захистом</span>
+      <span class="security-divider" aria-hidden="true"></span>
+      <span class="security-tag">Разом до завтра</span>
+      <span class="security-dash" aria-hidden="true"></span>
+    </section>
+    <div class="disclaimer">особиста сторінка переказу · не офіційний застосунок банку</div>
+  </div>
+</main>
+<script src="app.js" defer></script>
+</body>
+</html>
