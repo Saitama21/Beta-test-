@@ -1,6 +1,17 @@
 const tg=window.Telegram?.WebApp;
 try{tg?.ready();tg?.expand();tg?.disableVerticalSwipes?.();tg?.setHeaderColor?.('#030712');tg?.setBackgroundColor?.('#030712')}catch(e){}
 
+function syncViewport(){
+  const tgHeight=Number(tg?.viewportStableHeight||tg?.viewportHeight||0);
+  const visualHeight=Number(window.visualViewport?.height||0);
+  const height=Math.max(320,Math.round(tgHeight||visualHeight||window.innerHeight));
+  document.documentElement.style.setProperty('--app-vh',`${height}px`);
+}
+syncViewport();
+window.addEventListener('resize',syncViewport,{passive:true});
+window.visualViewport?.addEventListener('resize',syncViewport,{passive:true});
+tg?.onEvent?.('viewportChanged',syncViewport);
+
 const CARD_RAW='4314140211726887';
 const heroCard=document.getElementById('heroCard');
 const copyBtn=document.getElementById('copyBtn');
