@@ -9,6 +9,7 @@
 <title>PUMB Personal Card</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="motion.css">
 </head>
 <body>
 <div class="ambient" aria-hidden="true"></div>
@@ -43,7 +44,7 @@
         </button>
         <div class="copy-status" id="copyStatus" aria-live="polite">✓ Номер скопійовано</div>
       </div>
-</section>
+    </section>
 
     <section class="transfer-card glass-panel" aria-label="Переказ коштів">
       <div class="transfer-head">
@@ -54,7 +55,30 @@
         <div class="live-pill"><span class="live-dot" aria-hidden="true"></span>LIVE</div>
       </div>
 
-      <div class="transfer-scene" aria-hidden="true"><img class="transfer-art" src="assets/transfer-art.svg" alt=""><div class="art-glow"></div></div>
+      <div class="transfer-scene" aria-hidden="true">
+        <img class="transfer-art" src="assets/transfer-art.svg" alt="">
+        <svg class="transfer-motion" viewBox="0 0 805 390" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="motionFlowA" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#46b7ff"/><stop offset=".42" stop-color="#f8fbff"/><stop offset=".7" stop-color="#ff68b3"/><stop offset="1" stop-color="#ff285f"/></linearGradient>
+            <linearGradient id="motionFlowB" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#2f83ff"/><stop offset=".5" stop-color="#66d2ff"/><stop offset="1" stop-color="#db55ff"/></linearGradient>
+            <linearGradient id="motionFlowC" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ff74b5"/><stop offset=".5" stop-color="#fff"/><stop offset="1" stop-color="#ff3c7b"/></linearGradient>
+          </defs>
+          <path class="flow flow-a" d="M145 239 C236 124 308 306 408 196 S566 108 660 186"/>
+          <path class="flow flow-b" d="M151 194 C251 286 327 107 425 179 S548 288 662 203"/>
+          <path class="flow flow-c" d="M160 253 C256 169 332 247 426 214 S558 148 665 211"/>
+          <rect class="sender-glow" x="38" y="38" width="154" height="310" rx="38"/>
+          <rect class="receiver-glow" x="524" y="67" width="230" height="170" rx="24"/>
+          <text class="money-digit d1" x="314" y="112">4</text>
+          <text class="money-digit d2" x="423" y="154">7</text>
+          <text class="money-digit d3" x="365" y="220">3</text>
+          <text class="money-digit d4" x="474" y="192">5</text>
+          <text class="money-digit d5" x="407" y="270">8</text>
+          <circle class="spark s1" cx="285" cy="205" r="4"/>
+          <circle class="spark s2" cx="441" cy="165" r="3.5"/>
+          <circle class="spark s3" cx="522" cy="208" r="3"/>
+        </svg>
+        <div class="art-glow"></div>
+      </div>
 
       <div class="rates" aria-label="Курси НБУ">
         <div class="rate"><span class="flag-badge" aria-hidden="true">🇺🇸</span><span class="rate-line"><b class="rate-code">USD</b><span class="rate-value" id="usdVal">44.56 ₴</span></span></div>
