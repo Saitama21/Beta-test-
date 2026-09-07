@@ -1,48 +1,44 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 235" preserveAspectRatio="none">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 845 205" role="img" aria-hidden="true">
   <defs>
     <linearGradient id="sky" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#07142a" stop-opacity="0"/>
-      <stop offset="0.52" stop-color="#0d2c56" stop-opacity=".26"/>
-      <stop offset="1" stop-color="#14061d" stop-opacity=".7"/>
+      <stop offset="0" stop-color="#07111f" stop-opacity="0"/>
+      <stop offset=".45" stop-color="#071426" stop-opacity=".72"/>
+      <stop offset="1" stop-color="#050913" stop-opacity=".96"/>
     </linearGradient>
-    <linearGradient id="ridgeBlue" x1="0" y1="0" x2="0.9" y2="1">
-      <stop offset="0" stop-color="#a7d7ff" stop-opacity=".82"/>
-      <stop offset=".1" stop-color="#3f9cff" stop-opacity=".42"/>
-      <stop offset=".34" stop-color="#0b315c"/>
-      <stop offset="1" stop-color="#020611"/>
-    </linearGradient>
-    <linearGradient id="ridgePink" x1="0" y1="0" x2="1" y2=".8">
-      <stop offset="0" stop-color="#ff7cb0" stop-opacity=".92"/>
-      <stop offset=".12" stop-color="#ff2b69" stop-opacity=".65"/>
-      <stop offset=".46" stop-color="#50102f"/>
-      <stop offset="1" stop-color="#02050c"/>
-    </linearGradient>
-    <linearGradient id="neon" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0" stop-color="#42b4ff"/>
-      <stop offset=".45" stop-color="#e9f7ff"/>
-      <stop offset=".72" stop-color="#ff3e8d"/>
-      <stop offset="1" stop-color="#ff2360"/>
-    </linearGradient>
-    <filter id="glowB" x="-30%" y="-50%" width="160%" height="200%">
-      <feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-    </filter>
-    <filter id="glowP" x="-40%" y="-60%" width="180%" height="220%">
-      <feGaussianBlur stdDeviation="6" result="p"/><feMerge><feMergeNode in="p"/><feMergeNode in="SourceGraphic"/></feMerge>
-    </filter>
-    <filter id="soft" x="-20%" y="-40%" width="140%" height="180%"><feGaussianBlur stdDeviation="12"/></filter>
+    <radialGradient id="blueGlow" cx=".45" cy=".56" r=".7"><stop offset="0" stop-color="#218cff" stop-opacity=".42"/><stop offset="1" stop-color="#218cff" stop-opacity="0"/></radialGradient>
+    <radialGradient id="pinkGlow" cx=".89" cy=".37" r=".68"><stop offset="0" stop-color="#ff2a69" stop-opacity=".55"/><stop offset="1" stop-color="#ff2a69" stop-opacity="0"/></radialGradient>
+    <linearGradient id="mountA" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3b76bb"/><stop offset=".18" stop-color="#183a6a"/><stop offset=".62" stop-color="#0a172b"/><stop offset="1" stop-color="#040914"/></linearGradient>
+    <linearGradient id="mountB" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#17325a"/><stop offset=".52" stop-color="#0b1630"/><stop offset="1" stop-color="#040811"/></linearGradient>
+    <linearGradient id="ridge" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#5ac8ff"/><stop offset=".34" stop-color="#f6fbff"/><stop offset=".63" stop-color="#7fb9ff"/><stop offset=".79" stop-color="#ff4a91"/><stop offset="1" stop-color="#ff245f"/></linearGradient>
+    <linearGradient id="pill" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff1e"/><stop offset=".48" stop-color="#101c37f0"/><stop offset="1" stop-color="#050a15f8"/></linearGradient>
+    <filter id="glowBlue" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <filter id="glowPink" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <filter id="soft" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="1.2"/></filter>
   </defs>
-  <rect width="760" height="235" fill="url(#sky)"/>
-  <ellipse cx="540" cy="170" rx="190" ry="65" fill="#ff2360" opacity=".12" filter="url(#soft)"/>
-  <ellipse cx="170" cy="198" rx="180" ry="42" fill="#2798ff" opacity=".11" filter="url(#soft)"/>
-  <path d="M0 219 L67 190 116 201 176 166 226 186 292 138 350 169 411 111 478 160 551 93 604 139 671 82 760 133 760 235 0 235Z" fill="url(#ridgeBlue)" opacity=".76"/>
-  <path d="M0 232 L87 204 146 215 205 184 268 206 337 159 403 192 474 147 535 180 612 127 669 162 720 137 760 155 760 235 0 235Z" fill="url(#ridgePink)" opacity=".78"/>
-  <path d="M14 219 L68 190 116 201 176 166 226 186 292 138 350 169 411 111 478 160 551 93 604 139 671 82 744 127" fill="none" stroke="url(#neon)" stroke-width="2.2" opacity=".92" filter="url(#glowB)"/>
-  <path d="M82 213 L145 198 205 184 268 206 337 159 403 192 474 147 535 180 612 127 669 162 720 137" fill="none" stroke="#ff2e73" stroke-width="2" opacity=".82" filter="url(#glowP)"/>
-  <path d="M262 212 C337 182 395 198 464 168 S587 137 716 154" fill="none" stroke="url(#neon)" stroke-width="1.4" opacity=".55" filter="url(#glowB)"/>
-  <g fill="#fff" opacity=".65">
-    <circle cx="511" cy="52" r="1.4"/><circle cx="548" cy="68" r="1"/><circle cx="604" cy="46" r="1.2"/><circle cx="642" cy="61" r="1"/><circle cx="690" cy="39" r="1.4"/>
+  <rect width="845" height="205" fill="url(#sky)"/>
+  <ellipse cx="375" cy="160" rx="300" ry="120" fill="url(#blueGlow)"/>
+  <ellipse cx="770" cy="108" rx="230" ry="130" fill="url(#pinkGlow)"/>
+  <g opacity=".98">
+    <path d="M0 205V176L74 164l57 11 70-42 44 21 83-64 47 28 92-71 42 31 88-88 49 44 80-49 65 41 54-26v169Z" fill="url(#mountA)"/>
+    <path d="M0 205v-12l94-53 52 36 79-52 57 38 86-61 58 49 95-61 60 52 87-67 77 57 80-38v112Z" fill="url(#mountB)" opacity=".88"/>
+    <path d="M52 171 128 158l72-27 43 23 83-62 48 27 91-70 44 31 88-87 49 45 80-47 64 39 50-22" fill="none" stroke="url(#ridge)" stroke-width="2.5" stroke-linecap="round" filter="url(#glowBlue)"/>
+    <path d="M256 147 330 95 375 121M469 50l42 31M598 0l50 45M731 0l64 40" fill="none" stroke="#ff4f8c" stroke-width="1.7" opacity=".84" filter="url(#glowPink)"/>
+    <path d="M120 187c54-22 99-34 151-49 36-10 70-16 115-24" fill="none" stroke="#ff2f73" stroke-width="3" opacity=".78" filter="url(#glowPink)"/>
+    <path d="M287 191c50-30 79-41 126-64 41-20 81-32 122-43" fill="none" stroke="#2f9cff" stroke-width="1.5" opacity=".38"/>
   </g>
-  <g fill="#ff4a8e" opacity=".82">
-    <circle cx="572" cy="77" r="1.7"/><circle cx="628" cy="91" r="1.2"/><circle cx="704" cy="73" r="1.6"/>
+  <g fill="#ffffff" opacity=".34"><circle cx="335" cy="64" r="1.2"/><circle cx="392" cy="104" r="1"/><circle cx="449" cy="78" r="1.1"/><circle cx="523" cy="58" r="1.1"/><circle cx="625" cy="35" r="1"/><circle cx="690" cy="72" r="1.3"/><circle cx="777" cy="44" r="1"/></g>
+  <g fill="#ff4b8b" opacity=".48"><circle cx="594" cy="47" r="1.4"/><circle cx="648" cy="28" r="1.2"/><circle cx="720" cy="57" r="1.5"/><circle cx="801" cy="31" r="1.1"/></g>
+  <g transform="translate(43 48) rotate(-5)">
+    <text x="0" y="0" fill="#f6f9ff" font-family="Snell Roundhand,Segoe Script,cursive" font-size="31" font-style="italic" opacity=".95">Більше</text>
+    <text x="16" y="35" fill="#f6f9ff" font-family="Snell Roundhand,Segoe Script,cursive" font-size="28" font-style="italic" opacity=".93">можливостей</text>
+    <text x="2" y="70" fill="#f6f9ff" font-family="Snell Roundhand,Segoe Script,cursive" font-size="28" font-style="italic" opacity=".9">для твого життя</text>
+    <path d="M94 82c34-9 60-13 87-15" fill="none" stroke="#ff2b68" stroke-width="3" stroke-linecap="round" filter="url(#glowPink)"/>
   </g>
+  <g transform="translate(510 96)">
+    <rect x="0" y="0" width="143" height="66" rx="33" fill="url(#pill)" stroke="#9ec5ff" stroke-opacity=".32"/>
+    <circle cx="61" cy="33" r="22" fill="#ff244f"/><circle cx="84" cy="33" r="22" fill="#ffb244" opacity=".95" style="mix-blend-mode:screen"/>
+    <rect x="155" y="0" width="145" height="66" rx="33" fill="url(#pill)" stroke="#75a9ff" stroke-opacity=".46"/>
+    <text x="227.5" y="43" text-anchor="middle" fill="#fff" font-family="Arial,sans-serif" font-size="31" font-weight="900" font-style="italic">VISA</text>
+  </g>
+  <path d="M2 18v156c0 17 14 29 31 29h779c17 0 31-12 31-29V18" fill="none" stroke="url(#ridge)" stroke-opacity=".72" stroke-width="2" filter="url(#glowBlue)"/>
 </svg>
