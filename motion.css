@@ -1,0 +1,46 @@
+@keyframes ambientFloatA{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(30px,22px,0)}}
+@keyframes ambientFloatB{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(-28px,-20px,0)}}
+@keyframes sheen{0%,20%{transform:translateX(0) rotate(17deg);opacity:.22}52%{transform:translateX(250%) rotate(17deg);opacity:.44}75%,100%{transform:translateX(250%) rotate(17deg);opacity:.18}}
+@keyframes orbFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+@keyframes orbMorph{0%,100%{border-radius:49% 51% 47% 53%/53% 46% 54% 47%}33%{border-radius:53% 47% 51% 49%/48% 55% 45% 52%}66%{border-radius:46% 54% 49% 51%/55% 47% 53% 45%}}
+@keyframes ringBreathe{0%,100%{transform:scale(.97);opacity:.38}50%{transform:scale(1.045);opacity:.78}}
+@keyframes bubbleA{0%,100%{transform:translate(0,0) scale(.92)}50%{transform:translate(3px,-7px) scale(1.08)}}
+@keyframes bubbleB{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-4px,6px) scale(.86)}}
+@keyframes livePulse{0%,100%{opacity:.58;transform:scale(.86)}50%{opacity:1;transform:scale(1.08)}}
+@keyframes artFloat{0%,100%{transform:scale(1.012) translate3d(0,0,0)}50%{transform:scale(1.018) translate3d(0,-2px,0)}}
+@keyframes syncSpin{to{transform:rotate(360deg)}}
+@media (max-width:390px){
+  .app-shell{padding-left:7px;padding-right:7px}
+  .header{padding-left:16px;padding-right:16px;column-gap:12px;min-height:88px}
+  .brand-divider{height:48px}
+  .brand-copy{font-size:15px}
+  .bell{width:50px;height:50px}
+  .hero-card{min-height:298px;padding:23px 20px 18px}
+  .copy-zone{right:17px;top:73px}
+  .copy-orb{width:62px;height:62px}
+  .hero-copy{max-width:calc(100% - 68px)}
+  .helper{font-size:11px}
+  .mountain-note{left:20px;bottom:23px;font-size:17px;width:134px}
+}
+@media (max-width:350px){
+  .brand-copy{display:none}
+  .header{grid-template-columns:auto 1fr auto}
+  .brand-divider{display:none}
+  .hero-card{padding-left:17px;padding-right:17px}
+  .hero-copy{max-width:calc(100% - 64px)}
+  .person-name{font-size:18px}
+  .card-number{font-size:20px;letter-spacing:0}
+  .helper{display:none}
+  .copy-zone{right:12px}
+  .transfer-title{font-size:16px;letter-spacing:.05em}
+  .live-pill{font-size:10px}
+  .rate{gap:5px}
+  .rate-code{font-size:10px}
+  .rate-value{font-size:18px}
+  .flag-badge{width:32px;height:32px;flex-basis:32px;font-size:18px}
+  .security-tag,.security-divider{display:none}
+  .security{grid-template-columns:auto 1fr auto}
+  .security-dash{justify-self:end}
+}
+@media (min-width:700px){body{padding:30px 0}.app-shell{border-radius:38px}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.001ms!important}}
