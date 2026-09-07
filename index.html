@@ -8,15 +8,7 @@
 <meta name="format-detection" content="telephone=no">
 <title>PUMB Personal Card</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
-<link rel="stylesheet" href="styles.css?v=20260908-0158">
-<style>
-/* Definitive hero copy placement: independent of success-label width. */
-.hero-card .copy-zone{right:42px;width:76px;display:block}
-.hero-card .copy-control{display:grid;margin-left:auto}
-.hero-card .copy-status{position:absolute;right:0;top:calc(100% + 5px);margin-top:0;max-width:112px}
-@media(max-width:370px){.hero-card .copy-zone{right:34px;width:70px}}
-@media(max-height:680px){.hero-card .copy-zone{right:32px;width:64px}}
-</style>
+<link rel="stylesheet" href="styles.css?v=20260908-0206">
 </head>
 <body>
 <div class="ambient" aria-hidden="true"></div>
@@ -26,28 +18,28 @@
     <div class="brand-divider" aria-hidden="true"></div>
     <div class="brand-copy">особиста<br>сторінка</div>
     <div class="bell" aria-hidden="true">
-      <svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg>
-      <span></span>
+      <svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg><span></span>
     </div>
   </header>
 
   <div class="stack">
     <section class="hero-card panel" id="heroCard" aria-label="Картка отримувача">
       <div class="panel-reflection" aria-hidden="true"></div>
-      <div class="hero-copy">
-        <div class="eyebrow">Одержувач</div>
-        <div class="person-name">Єрошов Іван Сергійович</div>
-        <div class="eyebrow number-label">Номер картки</div>
-        <div class="card-number">4314 1402 1172 6887</div>
-        <div class="helper">Натисни кнопку — скопіюється номер без пробілів.</div>
-      </div>
-
-      <div class="copy-zone">
-        <button class="copy-control" id="copyBtn" type="button" aria-label="Скопіювати номер картки">
-          <svg class="copy-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="11" height="11" rx="2.5"/><path d="M16 8V6.5A2.5 2.5 0 0 0 13.5 4h-7A2.5 2.5 0 0 0 4 6.5v7A2.5 2.5 0 0 0 6.5 16H8"/></svg>
-          <svg class="copy-success" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.1 4L19 7"/></svg>
-        </button>
-        <div class="copy-status" id="copyStatus" aria-live="polite">Номер скопійовано</div>
+      <div class="hero-top">
+        <div class="hero-copy">
+          <div class="eyebrow">Одержувач</div>
+          <div class="person-name">Єрошов Іван Сергійович</div>
+          <div class="eyebrow number-label">Номер картки</div>
+          <div class="card-number">4314 1402 1172 6887</div>
+          <div class="helper">Натисни кнопку — скопіюється номер без пробілів.</div>
+        </div>
+        <div class="copy-zone">
+          <button class="copy-control" id="copyBtn" type="button" aria-label="Скопіювати номер картки">
+            <svg class="copy-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="11" height="11" rx="2.5"/><path d="M16 8V6.5A2.5 2.5 0 0 0 13.5 4h-7A2.5 2.5 0 0 0 4 6.5v7A2.5 2.5 0 0 0 6.5 16H8"/></svg>
+            <svg class="copy-success" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.1 4L19 7"/></svg>
+          </button>
+          <div class="copy-status" id="copyStatus" aria-live="polite">Номер скопійовано</div>
+        </div>
       </div>
 
       <div class="hero-landscape" aria-hidden="true">
@@ -63,71 +55,32 @@
           <path d="M70 220 159 197l89-50 65 31 94-74 61 39 120-93 55 49 103-77 91 61" fill="none" stroke="url(#ridgeLight)" stroke-width="4" stroke-linecap="round" filter="url(#ridgeGlow)" opacity=".75"/>
           <path d="M70 220 159 197l89-50 65 31 94-74 61 39 120-93 55 49 103-77 91 61" fill="none" stroke="url(#ridgeLight)" stroke-width="1.2" stroke-linecap="round" opacity=".95"/>
         </svg>
-        <div class="hero-script">Більше можливостей<br>для твого життя</div>
-        <div class="network-pills">
-          <div class="network-pill master" aria-label="Mastercard"><i></i><i></i></div>
-          <div class="network-pill visa" aria-label="Visa">VISA</div>
-        </div>
+        <div class="network-pills"><div class="network-pill master" aria-label="Mastercard"><i></i><i></i></div><div class="network-pill visa" aria-label="Visa">VISA</div></div>
       </div>
     </section>
 
     <section class="transfer-card panel" aria-label="Переказ коштів">
       <div class="transfer-head">
-        <div class="transfer-title-wrap">
-          <div class="plane-badge" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M21 3 9.5 14.5M21 3l-7 18-4.5-6.5L3 10l18-7Z"/></svg></div>
-          <div class="transfer-title">ПЕРЕКАЗ КОШТІВ</div>
-        </div>
+        <div class="transfer-title-wrap"><div class="plane-badge" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M21 3 9.5 14.5M21 3l-7 18-4.5-6.5L3 10l18-7Z"/></svg></div><div class="transfer-title">ПЕРЕКАЗ КОШТІВ</div></div>
         <div class="live-pill"><span></span>LIVE</div>
       </div>
-
       <div class="transfer-stage" aria-hidden="true">
         <div class="stage-veil"></div>
-        <div class="phone-3d">
-          <div class="phone-edge"></div>
-          <div class="phone-screen">
-            <div class="phone-notch"></div>
-            <div class="phone-copy">Відправляй<br>легко</div>
-            <svg class="phone-plane" viewBox="0 0 64 64"><path d="M55 8 22 41M55 8 43 57 22 41 7 26 55 8Z"/></svg>
-          </div>
-        </div>
-
+        <div class="phone-3d"><div class="phone-edge"></div><div class="phone-screen"><div class="phone-notch"></div><div class="phone-copy">Відправляй<br>легко</div><svg class="phone-plane" viewBox="0 0 64 64"><path d="M55 8 22 41M55 8 43 57 22 41 7 26 55 8Z"/></svg></div></div>
         <svg class="flow-layer" viewBox="0 0 900 360" preserveAspectRatio="none">
-          <defs>
-            <linearGradient id="flowA" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#5ec8ff"/><stop offset=".44" stop-color="#f5fbff"/><stop offset=".72" stop-color="#ff75ba"/><stop offset="1" stop-color="#ff2e6b"/></linearGradient>
-            <linearGradient id="flowB" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#2f8cff"/><stop offset=".5" stop-color="#77c8ff"/><stop offset="1" stop-color="#ff4e98"/></linearGradient>
-            <filter id="flowGlow" x="-30%" y="-60%" width="160%" height="220%"><feGaussianBlur stdDeviation="8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-          </defs>
+          <defs><linearGradient id="flowA" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#5ec8ff"/><stop offset=".44" stop-color="#f5fbff"/><stop offset=".72" stop-color="#ff75ba"/><stop offset="1" stop-color="#ff2e6b"/></linearGradient><linearGradient id="flowB" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#2f8cff"/><stop offset=".5" stop-color="#77c8ff"/><stop offset="1" stop-color="#ff4e98"/></linearGradient><filter id="flowGlow" x="-30%" y="-60%" width="160%" height="220%"><feGaussianBlur stdDeviation="8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
           <path class="flow flow-a" pathLength="1" d="M190 210 C310 105 405 290 520 176 S675 130 755 170" fill="none" stroke="url(#flowA)" stroke-width="7" stroke-linecap="round" filter="url(#flowGlow)"/>
           <path class="flow flow-b" pathLength="1" d="M192 245 C320 165 405 240 520 205 S660 130 760 190" fill="none" stroke="url(#flowB)" stroke-width="4" stroke-linecap="round" opacity=".78" filter="url(#flowGlow)"/>
           <path class="flow flow-c" pathLength="1" d="M205 175 C325 250 420 102 540 185 S680 240 760 205" fill="none" stroke="#f7fbff" stroke-width="2" stroke-linecap="round" opacity=".42"/>
           <g class="transfer-digits"><text x="380" y="105">4</text><text x="466" y="136">3</text><text x="546" y="112">2</text><text x="435" y="255">8</text><text x="572" y="236">5</text></g>
-          <g class="transfer-particles"><circle cx="350" cy="186" r="2"/><circle cx="405" cy="145" r="1.4"/><circle cx="493" cy="222" r="1.6"/><circle cx="585" cy="151" r="2"/><circle cx="645" cy="205" r="1.4"/></g>
         </svg>
-
-        <div class="bank-card-3d">
-          <div class="card-sheen"></div>
-          <div class="pumb-mark">PUMB</div>
-          <div class="chip"><i></i></div>
-          <div class="contactless">)))</div>
-          <div class="visa-mark">VISA</div>
-        </div>
+        <div class="bank-card-3d"><div class="card-sheen"></div><div class="pumb-mark">PUMB</div><div class="chip"><i></i></div><div class="contactless">)))</div><div class="visa-mark">VISA</div></div>
         <div class="stage-caption">КОШТИ<br>ЗАВЖДИ<br>В РУСІ<i></i></div>
       </div>
-
-      <div class="rates" aria-label="Курси НБУ">
-        <div class="rate"><span class="flag-badge" aria-hidden="true">🇺🇸</span><span class="rate-line"><b>USD</b><span id="usdVal">44.56 ₴</span></span></div>
-        <div class="sync-pill" id="syncPill" aria-label="Курси оновлюються автоматично"><svg viewBox="0 0 24 24"><path d="M20 7v5h-5"/><path d="M4 17v-5h5"/><path d="M6.1 8a7 7 0 0 1 11.4-2.1L20 8M4 16l2.5 2.1A7 7 0 0 0 17.9 16"/></svg></div>
-        <div class="rate"><span class="flag-badge" aria-hidden="true">🇪🇺</span><span class="rate-line"><b>EUR</b><span id="eurVal">51.79 ₴</span></span></div>
-      </div>
+      <div class="rates" aria-label="Курси НБУ"><div class="rate"><span class="flag-badge" aria-hidden="true">🇺🇸</span><span class="rate-line"><b>USD</b><span id="usdVal">44.56 ₴</span></span></div><div class="sync-pill" id="syncPill" aria-label="Курси оновлюються автоматично"><svg viewBox="0 0 24 24"><path d="M20 7v5h-5"/><path d="M4 17v-5h5"/><path d="M6.1 8a7 7 0 0 1 11.4-2.1L20 8M4 16l2.5 2.1A7 7 0 0 0 17.9 16"/></svg></div><div class="rate"><span class="flag-badge" aria-hidden="true">🇪🇺</span><span class="rate-line"><b>EUR</b><span id="eurVal">51.79 ₴</span></span></div></div>
     </section>
 
-    <section class="security panel" aria-label="Безпека">
-      <span class="security-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3 19 6v5c0 5-3 8-7 10-4-2-7-5-7-10V6l7-3Z"/><path d="M9.5 12.2 11.3 14 15 9.7"/></svg></span>
-      <span class="security-copy">Ваші кошти під надійним захистом</span>
-      <span class="security-divider" aria-hidden="true"></span>
-      <span class="security-tag">Разом до завтра</span>
-      <span class="security-dash" aria-hidden="true"></span>
-    </section>
+    <section class="security panel" aria-label="Безпека"><span class="security-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3 19 6v5c0 5-3 8-7 10-4-2-7-5-7-10V6l7-3Z"/><path d="M9.5 12.2 11.3 14 15 9.7"/></svg></span><span class="security-copy">Ваші кошти під надійним захистом</span><span class="security-divider" aria-hidden="true"></span><span class="security-tag">Разом до завтра</span><span class="security-dash" aria-hidden="true"></span></section>
     <div class="disclaimer">особиста сторінка переказу · не офіційний застосунок банку</div>
   </div>
 </main>
