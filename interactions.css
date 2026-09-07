@@ -1,0 +1,29 @@
+.copy-zone{position:absolute;right:23px;top:76px;z-index:12;width:78px;display:grid;justify-items:center}
+.copy-orb{
+  position:relative;width:68px;height:68px;border-radius:50%;border:1px solid #ffd5e86f;cursor:pointer;color:#fff;padding:0;display:grid;place-items:center;
+  background:
+    radial-gradient(34% 25% at 31% 19%,#ffffffee 0 14%,#ffffff68 35%,transparent 72%),
+    radial-gradient(circle at 62% 65%,#ff4f8bb5 0 24%,#aa205d7c 54%,#22091cbd 83%),
+    linear-gradient(145deg,#ffffff32,#ff5b9a5a 38%,#360d2b9c 80%);
+  -webkit-backdrop-filter:blur(18px) saturate(185%);backdrop-filter:blur(18px) saturate(185%);
+  box-shadow:inset 2px 2px 5px #ffffff92,inset -8px -10px 20px #33041f9c,0 11px 23px #000a,0 0 24px #ff2f7258;
+  animation:orbFloat 4.6s ease-in-out infinite,orbMorph 8s ease-in-out infinite;
+  transition:transform .22s var(--ease),background .45s ease,box-shadow .45s ease,border-color .45s ease,filter .4s ease;
+}
+.copy-orb::before{content:"";position:absolute;inset:-8px;border-radius:50%;border:1px solid #ff83ad38;box-shadow:0 0 14px #ff3e7834;animation:ringBreathe 3.4s ease-in-out infinite}
+.copy-orb::after{content:"";position:absolute;left:14%;top:11%;width:50%;height:23%;border-radius:50%;background:linear-gradient(180deg,#fff,#ffd8e76d 55%,transparent);filter:blur(.4px);transform:rotate(-14deg);pointer-events:none}
+.copy-orb:active{transform:scale(.92)}
+.copy-orb svg{width:27px;position:relative;z-index:3;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 8px #fff8);transition:.3s var(--ease)}
+.copy-check{position:absolute;z-index:4;width:31px;height:31px;opacity:0;transform:scale(.5) rotate(-15deg);transition:.32s var(--ease)}
+.copy-check::before{content:"";position:absolute;left:7px;top:7px;width:10px;height:18px;border-right:3px solid #fff;border-bottom:3px solid #fff;border-radius:2px;transform:rotate(45deg);filter:drop-shadow(0 0 8px #fff)}
+.bubble{position:absolute;border-radius:50%;border:1px solid #ffffff77;background:radial-gradient(circle at 32% 28%,#fff,#ff9dbd73 38%,#3b102b57 76%);box-shadow:inset 0 0 6px #ffffff42,0 0 8px #ff5a913f;pointer-events:none;transition:.4s ease}
+.b1{width:11px;height:11px;left:-6px;top:16px;animation:bubbleA 4.8s ease-in-out infinite}.b2{width:8px;height:8px;right:-4px;bottom:13px;animation:bubbleB 4.2s ease-in-out infinite}.b3{width:7px;height:7px;right:4px;top:-5px;animation:bubbleA 5.4s ease-in-out -1.2s infinite}
+.copy-status{position:absolute;top:78px;right:-2px;margin-top:0;min-height:19px;padding:4px 8px;border-radius:999px;border:1px solid #56ff9b32;background:#0b2419d6;color:#bfffd9;font-size:8px;font-weight:760;white-space:nowrap;width:max-content;justify-self:end;opacity:0;transform:translateY(-4px) scale(.95);transition:.3s var(--ease);pointer-events:none;box-shadow:inset 0 1px #ffffff14,0 5px 12px #0007,0 0 10px #45ff8b20}
+.hero-card.is-copied .copy-orb{border-color:#b9ffd392;background:radial-gradient(circle at 31% 20%,#ffffffef 0 10%,#8dffc2d8 28%,#29da7adf 58%,#073c23ec 100%);box-shadow:inset 2px 2px 5px #ffffffb8,inset -8px -10px 20px #00361fa8,0 10px 22px #0009,0 0 25px #55ff9ae0,0 0 44px #3bee8c55;filter:brightness(1.06)}
+.hero-card.is-copied .copy-orb svg{opacity:0;transform:scale(.5) rotate(12deg)}
+.hero-card.is-copied .copy-check{opacity:1;transform:scale(1) rotate(0)}
+.hero-card.is-copied .copy-orb::before{border-color:#65ffa55c;box-shadow:0 0 18px #48ff8f75}
+.hero-card.is-copied .bubble{background:radial-gradient(circle at 32% 28%,#fff,#8fffc07f 40%,#084d2b5d 77%);box-shadow:inset 0 0 6px #ffffff4d,0 0 10px #56ffa06b}
+.hero-card.is-copied .copy-status{opacity:1;transform:translateY(0) scale(1)}
+.hero-decor{position:absolute;z-index:2;left:0;right:0;bottom:0;width:100%;height:auto;display:block;pointer-events:none;opacity:.96;filter:saturate(1.03) contrast(1.02);-webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 12%,#000 100%);mask-image:linear-gradient(to bottom,transparent 0,#000 12%,#000 100%);transform:translateZ(0)}
+.hero-card.is-copied .hero-decor{filter:saturate(.92) contrast(1.02) hue-rotate(7deg) brightness(1.02)}
