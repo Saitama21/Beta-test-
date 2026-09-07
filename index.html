@@ -8,7 +8,15 @@
 <meta name="format-detection" content="telephone=no">
 <title>PUMB Personal Card</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="styles.css?v=20260908-0158">
+<style>
+/* Definitive hero copy placement: independent of success-label width. */
+.hero-card .copy-zone{right:42px;width:76px;display:block}
+.hero-card .copy-control{display:grid;margin-left:auto}
+.hero-card .copy-status{position:absolute;right:0;top:calc(100% + 5px);margin-top:0;max-width:112px}
+@media(max-width:370px){.hero-card .copy-zone{right:34px;width:70px}}
+@media(max-height:680px){.hero-card .copy-zone{right:32px;width:64px}}
+</style>
 </head>
 <body>
 <div class="ambient" aria-hidden="true"></div>
