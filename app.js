@@ -2,10 +2,12 @@ const tg=window.Telegram?.WebApp;
 try{tg?.ready();tg?.expand();tg?.disableVerticalSwipes?.();tg?.setHeaderColor?.('#030712');tg?.setBackgroundColor?.('#030712')}catch(e){}
 
 function syncViewport(){
+  const inTelegram=Boolean(tg?.initData || tg?.viewportHeight);
   const tgHeight=Number(tg?.viewportStableHeight||tg?.viewportHeight||0);
   const visualHeight=Number(window.visualViewport?.height||0);
-  const height=Math.max(320,Math.round(tgHeight||visualHeight||window.innerHeight));
-  document.documentElement.style.setProperty('--app-vh',`${height}px`);
+  const cssHeight=Number(window.innerHeight||0);
+  const height=Math.max(320,Math.round(inTelegram&&tgHeight?tgHeight:(visualHeight||cssHeight)));
+  document.documentElement.style.setProperty('--app-h',`${height}px`);
 }
 syncViewport();
 window.addEventListener('resize',syncViewport,{passive:true});
@@ -30,9 +32,9 @@ async function copyCard(){
   void copyBtn.offsetWidth;
   heroCard.classList.add('is-copied');
   try{tg?.HapticFeedback?.notificationOccurred?.('success')}catch(e){}
-  copyTimer=setTimeout(()=>heroCard.classList.remove('is-copied'),2300);
+  copyTimer=setTimeout(()=>heroCard.classList.remove('is-copied'),2200);
 }
-copyBtn.addEventListener('click',copyCard);
+copyBtn?.addEventListener('click',copyCard);
 
 const usdEl=document.getElementById('usdVal');
 const eurEl=document.getElementById('eurVal');
@@ -40,18 +42,18 @@ const syncPill=document.getElementById('syncPill');
 const CACHE_KEY='pumb-nbu-rates-v2';
 let ratesLoading=false,lastRatesUpdate=0;
 const fmtDate=d=>`${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
-function renderRate(el,val){if(Number.isFinite(val))el.textContent=`${val.toFixed(2)} ₴`}
+function renderRate(el,val){if(el&&Number.isFinite(val))el.textContent=`${val.toFixed(2)} ₴`}
 function readCachedRates(){try{const c=JSON.parse(localStorage.getItem(CACHE_KEY)||'null');if(!c)return;renderRate(usdEl,c.usd);renderRate(eurEl,c.eur);lastRatesUpdate=c.ts||0}catch(e){}}
 async function getRate(code,date){const u=`https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?valcode=${code}&date=${fmtDate(date)}&json`;const r=await fetch(u,{cache:'no-store'});if(!r.ok)throw new Error('rate');const j=await r.json();return Number(j?.[0]?.rate)||null}
 async function latestRate(code){for(let i=0;i<8;i++){const d=new Date();d.setDate(d.getDate()-i);const value=await getRate(code,d).catch(()=>null);if(value)return value}return null}
 async function loadRates(){
   if(ratesLoading||!navigator.onLine)return;
-  ratesLoading=true;syncPill.classList.add('is-syncing');
+  ratesLoading=true;syncPill?.classList.add('is-syncing');
   try{
     const [usd,eur]=await Promise.all([latestRate('USD'),latestRate('EUR')]);
     if(usd)renderRate(usdEl,usd);if(eur)renderRate(eurEl,eur);
     if(usd||eur){lastRatesUpdate=Date.now();localStorage.setItem(CACHE_KEY,JSON.stringify({usd:usd||null,eur:eur||null,ts:lastRatesUpdate}))}
-  }finally{setTimeout(()=>syncPill.classList.remove('is-syncing'),700);ratesLoading=false}
+  }finally{setTimeout(()=>syncPill?.classList.remove('is-syncing'),700);ratesLoading=false}
 }
 readCachedRates();loadRates();setInterval(loadRates,15*60*1000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&Date.now()-lastRatesUpdate>60*1000)loadRates()});
