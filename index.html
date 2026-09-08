@@ -8,7 +8,7 @@
 <meta name="format-detection" content="telephone=no">
 <title>PUMB Personal Card</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
-<link rel="stylesheet" href="styles.css?v=20260908-1757">
+<link rel="stylesheet" href="styles.css?v=20260908-1800">
 </head>
 <body>
 <div class="ambient" aria-hidden="true"></div>
@@ -89,28 +89,15 @@
             <filter id="flowGlow" x="-40%" y="-80%" width="180%" height="260%"><feGaussianBlur stdDeviation="5.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
             <filter id="packetGlow" x="-300%" y="-300%" width="700%" height="700%"><feGaussianBlur stdDeviation="8"/></filter>
           </defs>
-
           <path id="flowPathA" class="flow-guide" pathLength="100" d="M180 212 C310 120 402 288 520 178 S674 130 760 172" stroke="url(#flowA)" stroke-width="3.1"/>
           <path id="flowPathB" class="flow-guide" pathLength="100" d="M184 246 C320 170 405 239 520 206 S660 135 766 193" stroke="url(#flowB)" stroke-width="2.1"/>
           <path id="flowPathC" class="flow-guide" pathLength="100" d="M205 178 C325 248 420 110 540 188 S680 238 765 207" stroke="#f7fbff" stroke-width="1.2" opacity=".13"/>
-
           <path class="flow-highlight flow-highlight-a" pathLength="100" d="M180 212 C310 120 402 288 520 178 S674 130 760 172" stroke="url(#flowA)" stroke-width="7" filter="url(#flowGlow)"/>
           <path class="flow-highlight flow-highlight-b" pathLength="100" d="M184 246 C320 170 405 239 520 206 S660 135 766 193" stroke="url(#flowB)" stroke-width="4.7" filter="url(#flowGlow)"/>
           <path class="flow-highlight flow-highlight-c" pathLength="100" d="M205 178 C325 248 420 110 540 188 S680 238 765 207" stroke="#f8fbff" stroke-width="2"/>
-
-          <g class="flow-packet packet-a">
-            <circle class="halo" r="16" fill="#78d2ff" opacity=".34" filter="url(#packetGlow)"/>
-            <circle class="core" r="4.5" fill="#f7fdff"/>
-          </g>
-          <g class="flow-packet packet-b">
-            <circle class="halo" r="14" fill="#ff6ca8" opacity=".28" filter="url(#packetGlow)"/>
-            <circle class="core" r="3.7" fill="#ffafd0"/>
-          </g>
-          <g class="flow-packet packet-c">
-            <circle class="halo" r="11" fill="#ffffff" opacity=".2" filter="url(#packetGlow)"/>
-            <circle class="core" r="2.7" fill="#ffffff"/>
-          </g>
-
+          <g class="flow-packet packet-a"><circle class="halo" r="16" fill="#78d2ff" opacity=".34" filter="url(#packetGlow)"/><circle class="core" r="4.5" fill="#f7fdff"/></g>
+          <g class="flow-packet packet-b"><circle class="halo" r="14" fill="#ff6ca8" opacity=".28" filter="url(#packetGlow)"/><circle class="core" r="3.7" fill="#ffafd0"/></g>
+          <g class="flow-packet packet-c"><circle class="halo" r="11" fill="#ffffff" opacity=".2" filter="url(#packetGlow)"/><circle class="core" r="2.7" fill="#ffffff"/></g>
           <g class="transfer-digits"><text x="388" y="118">4</text><text x="498" y="148">2</text><text x="454" y="250">8</text></g>
         </svg>
 
@@ -141,8 +128,8 @@
     <div class="disclaimer">особиста сторінка переказу · не офіційний застосунок банку</div>
   </div>
 </main>
-<script defer src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
-<script defer src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/MotionPathPlugin.min.js"></script>
-<script defer src="app.js?v=20260908-1757"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/MotionPathPlugin.min.js"></script>
+<script defer src="app.js?v=20260908-1800"></script>
 </body>
 </html>
