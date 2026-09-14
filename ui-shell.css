@@ -1,35 +1,78 @@
 :root{
-  --safe-top:max(0px, env(safe-area-inset-top, 0px));
-  --safe-bottom:max(0px, env(safe-area-inset-bottom, 0px));
-  --dock-bottom:8px;
+  --safe-top:max(12px,env(safe-area-inset-top));
+  --safe-bottom:max(10px,env(safe-area-inset-bottom));
+  --dock-bottom:7px;
+  --dock-width:95%;
   --dock-height:68px;
+  --dock-radius:22px;
+  --dock-border:1px;
+  --topbar-inset:6px;
+  --topbar-base-height:66px;
+  --topbar-pad-x:12px;
+  --topbar-pad-bottom:10px;
+  --topbar-radius:24px;
+  --topbar-border:1px;
 }
 
-html,body{overscroll-behavior-y:none}
-button{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+*{-webkit-tap-highlight-color:transparent}
+html,body{overscroll-behavior:none}
+button{touch-action:manipulation}
 
-/* Persistent top panel — same interaction model as Geometry-calc. */
+/*
+  Shell geometry follows Geometry-calc:
+  - no outer page padding hacks
+  - topbar owns its own safe-area
+  - content owns only content spacing
+  - dock is independent from document flow
+*/
+.app-shell{
+  width:100%;
+  max-width:none;
+  min-height:100dvh;
+  margin:0;
+  padding:0 0 calc(92px + var(--safe-bottom));
+  background:transparent;
+}
+
 .topbar{
   position:sticky;
   top:0;
   z-index:40;
-  min-height:76px;
-  margin:-18px -18px 16px;
-  padding:calc(12px + var(--safe-top)) 18px 12px;
+  min-height:calc(var(--topbar-base-height) + var(--safe-top));
+  width:calc(100% - (var(--topbar-inset) * 2));
+  max-width:calc(100vw - (var(--topbar-inset) * 2));
+  margin:0 var(--topbar-inset);
+  padding:var(--safe-top) var(--topbar-pad-x) var(--topbar-pad-bottom);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  overflow:hidden;
   border:1px solid var(--line);
   border-top:0;
-  border-radius:0 0 26px 26px;
+  border-radius:0 0 var(--topbar-radius) var(--topbar-radius);
   background:color-mix(in srgb,var(--panel2) 88%,transparent);
   box-shadow:0 12px 36px rgba(0,0,0,.22);
   backdrop-filter:blur(26px) saturate(135%);
   -webkit-backdrop-filter:blur(26px) saturate(135%);
 }
 
-/* Persistent bottom dock. */
+.app-shell>main{
+  width:min(100%,1120px);
+  margin:0 auto;
+  padding:16px 14px 28px;
+}
+
 .bottom-nav{
+  position:fixed;
   z-index:45;
-  bottom:calc(var(--dock-bottom) + var(--safe-bottom));
+  left:50%;
+  transform:translateX(-50%);
+  bottom:var(--dock-bottom);
+  width:min(var(--dock-width),640px);
   height:var(--dock-height);
+  border-width:var(--dock-border);
+  border-radius:var(--dock-radius);
   pointer-events:auto;
   isolation:isolate;
 }
@@ -42,30 +85,40 @@ button{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 .nav-btn{min-height:52px}
 .icon-btn{min-width:44px;min-height:44px}
 
-/* Keep scrollable content clear of the dock. */
-.app-shell{padding-bottom:calc(var(--dock-height) + 36px + var(--safe-bottom))}
+/* Same phone-class geometry every time: Safari tab or installed PWA. */
+@media (min-width:390px) and (max-width:430px){
+  :root{
+    --dock-bottom:2px;
+    --dock-width:87%;
+    --dock-height:68px;
+    --topbar-inset:0px;
+    --topbar-base-height:75px;
+    --topbar-pad-x:13px;
+    --topbar-pad-bottom:0px;
+    --topbar-radius:34px;
+  }
 
-@media(max-width:760px){
-  .app-shell{padding-top:12px;padding-left:12px;padding-right:12px}
-  .topbar{
-    margin:-12px -12px 14px;
-    padding:calc(10px + var(--safe-top)) 14px 10px;
-    min-height:72px;
-    border-radius:0 0 24px 24px;
-  }
-  .bottom-nav{
-    width:min(calc(100% - 22px),640px);
-    bottom:calc(7px + var(--safe-bottom));
-  }
+  .app-shell>main{padding:16px 14px 28px}
+}
+
+@media(max-width:389px){
+  .app-shell>main{padding:14px 12px 26px}
 }
 
 @media(min-width:900px){
-  .topbar{
-    margin:-18px -18px 18px;
-    padding:18px 18px 14px;
-    border-radius:0 0 24px 24px;
+  :root{
+    --topbar-inset:0px;
+    --topbar-radius:0px;
   }
+  .topbar{padding-left:24px;padding-right:24px}
+  .app-shell>main{padding:20px 24px 36px}
   .bottom-nav{
+    left:18px;
+    top:116px;
     bottom:auto;
+    transform:none;
+    width:72px;
+    height:auto;
   }
+  .app-shell>main{padding-left:110px}
 }
