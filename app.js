@@ -1,13 +1,16 @@
 (() => {
   'use strict';
 
-  const STORAGE_KEY = 'cutcalc.history.v1';
+  const STORAGE_KEY = 'cutcalc.history.v2';
   const THEME_KEY = 'cutcalc.theme.v1';
   const MAX_HISTORY = 40;
+  const MACHINE = Object.freeze({
+    minChuckGripMm: Math.max(0, Number(window.CUTCALC_MACHINE_CONFIG?.minChuckGripMm) || 46)
+  });
 
   const $ = (id) => document.getElementById(id);
   const form = $('calcForm');
-  const fields = ['material','diameter','partLength','quantity','kerf','faceA','faceB','stockLength','stockFace','deadTail','reservePct'];
+  const fields = ['material','diameter','partLength','quantity','kerf','faceA','faceB','stockLength','stockFace','reservePct'];
   const numberFields = fields.filter((id) => id !== 'material');
   const requiredCore = ['partLength','quantity','stockLength'];
   let deferredInstallPrompt = null;
@@ -19,8 +22,14 @@
   const clamp = (n, min, max) => Math.min(max, Math.max(min, n));
   const finite = (value, fallback = 0) => Number.isFinite(Number(value)) ? Number(value) : fallback;
 
+  function on(id, event, handler) {
+    const node = $(id);
+    if (node) node.addEventListener(event, handler);
+  }
+
   function hasRawValue(id) {
-    return String($(id).value ?? '').trim() !== '';
+    const node = $(id);
+    return node ? String(node.value ?? '').trim() !== '' : false;
   }
 
   function hasAnyCoreInput() {
@@ -29,17 +38,17 @@
 
   function readInput() {
     return {
-      material: $('material').value.trim(),
-      diameter: Math.max(0, finite($('diameter').value)),
-      partLength: Math.max(0, finite($('partLength').value)),
-      quantity: Math.max(0, Math.floor(finite($('quantity').value))),
-      kerf: Math.max(0, finite($('kerf').value)),
-      faceA: Math.max(0, finite($('faceA').value)),
-      faceB: Math.max(0, finite($('faceB').value)),
-      stockLength: Math.max(0, finite($('stockLength').value)),
-      stockFace: Math.max(0, finite($('stockFace').value)),
-      deadTail: Math.max(0, finite($('deadTail').value)),
-      reservePct: clamp(finite($('reservePct').value), 0, 100)
+      material: $('material')?.value.trim() || '',
+      diameter: Math.max(0, finite($('diameter')?.value)),
+      partLength: Math.max(0, finite($('partLength')?.value)),
+      quantity: Math.max(0, Math.floor(finite($('quantity')?.value))),
+      kerf: Math.max(0, finite($('kerf')?.value)),
+      faceA: Math.max(0, finite($('faceA')?.value)),
+      faceB: Math.max(0, finite($('faceB')?.value)),
+      stockLength: Math.max(0, finite($('stockLength')?.value)),
+      stockFace: Math.max(0, finite($('stockFace')?.value)),
+      reservePct: clamp(finite($('reservePct')?.value), 0, 100),
+      minChuckGrip: MACHINE.minChuckGripMm
     };
   }
 
@@ -51,13 +60,14 @@
 
     const cycleLength = i.partLength + i.faceA + i.faceB + i.kerf;
     const targetQuantity = i.quantity > 0 ? Math.ceil(i.quantity * (1 + i.reservePct / 100)) : 0;
-    const usableForCycles = Math.max(0, i.stockLength - i.stockFace - i.deadTail);
+    const usableForCycles = Math.max(0, i.stockLength - i.stockFace - i.minChuckGrip);
     const partsPerBar = cycleLength > 0 ? Math.floor(usableForCycles / cycleLength) : 0;
 
-    if (cycleLength <= 0 && i.partLength > 0) errors.push('Расход на одну деталь равен нулю.');
-    if (i.deadTail + i.stockFace >= i.stockLength && i.stockLength > 0) errors.push('Мёртвый хвост и первая торцовка занимают весь пруток.');
+    if (i.stockLength > 0 && i.stockFace + i.minChuckGrip >= i.stockLength) {
+      errors.push(`После первой торцовки должен оставаться зажим не меньше ${ru.format(i.minChuckGrip)} мм.`);
+    }
     if (partsPerBar < 1 && i.partLength > 0 && i.stockLength > 0 && !errors.length) {
-      errors.push('Из такого прутка не получается ни одной детали с заданными припусками.');
+      errors.push(`Из такого прутка нельзя получить деталь, сохранив минимум ${ru.format(i.minChuckGrip)} мм в кулачках.`);
     }
 
     if (errors.length) return { valid: false, errors, input: i, cycleLength, targetQuantity, partsPerBar };
@@ -70,23 +80,45 @@
     const perPartProcessLoss = i.faceA + i.faceB + i.kerf;
     const processLoss = targetQuantity * perPartProcessLoss + bars * i.stockFace;
 
-    const exhaustedTail = i.stockLength - i.stockFace - partsPerBar * cycleLength;
-    const scrapFromFullBars = fullBarsBeforeLast * exhaustedTail;
+    // Actual physical tail after the maximum possible number of parts from one bar.
+    // It is always >= minChuckGrip by construction.
+    const fullBarGripTail = i.stockLength - i.stockFace - partsPerBar * cycleLength;
+    const scrapFromFullBars = fullBarsBeforeLast * fullBarGripTail;
+
     const lastRawRemainder = i.stockLength - i.stockFace - partsLastBar * cycleLength;
     const lastIsExhausted = partsLastBar === partsPerBar;
     const reusableRemainder = lastIsExhausted ? 0 : Math.max(0, lastRawRemainder);
-    const lastScrap = lastIsExhausted ? Math.max(0, lastRawRemainder) : 0;
-    const unavoidableScrap = scrapFromFullBars + lastScrap;
+    const lastGripTail = lastIsExhausted ? Math.max(0, lastRawRemainder) : 0;
+    const unavoidableScrap = scrapFromFullBars + lastGripTail;
+
     const accounted = netProductLength + processLoss + unavoidableScrap + reusableRemainder;
     const accountingDelta = purchaseLength - accounted;
     const efficiency = purchaseLength > 0 ? (netProductLength / purchaseLength) * 100 : 0;
     const materialUsedForBatch = purchaseLength - reusableRemainder;
 
     return {
-      valid: true, input: i, cycleLength, targetQuantity, partsPerBar, bars, partsLastBar,
-      purchaseLength, netProductLength, processLoss, exhaustedTail, unavoidableScrap,
-      reusableRemainder, materialUsedForBatch, efficiency, accountingDelta
+      valid: true,
+      input: i,
+      cycleLength,
+      targetQuantity,
+      partsPerBar,
+      bars,
+      partsLastBar,
+      purchaseLength,
+      netProductLength,
+      processLoss,
+      fullBarGripTail,
+      unavoidableScrap,
+      reusableRemainder,
+      materialUsedForBatch,
+      efficiency,
+      accountingDelta
     };
+  }
+
+  function renderMachineRule() {
+    const node = $('minGripValue');
+    if (node) node.textContent = `${ru.format(MACHINE.minChuckGripMm)} мм`;
   }
 
   function renderNeutral() {
@@ -97,7 +129,7 @@
     $('cycleLength').textContent = '—';
     $('partsPerBar').textContent = '—';
     $('techLoss').textContent = '—';
-    $('reusableLeft').textContent = '—';
+    $('gripTail').textContent = '—';
     $('efficiencyValue').textContent = '—';
     $('efficiencyRing').style.setProperty('--p', 0);
     $('barViz').replaceChildren();
@@ -115,7 +147,7 @@
     $('cycleLength').textContent = r.cycleLength > 0 ? `${ru.format(r.cycleLength)} мм` : '—';
     $('partsPerBar').textContent = '—';
     $('techLoss').textContent = '—';
-    $('reusableLeft').textContent = '—';
+    $('gripTail').textContent = '—';
     $('efficiencyValue').textContent = '—';
     $('efficiencyRing').style.setProperty('--p', 0);
     $('barViz').replaceChildren();
@@ -148,10 +180,12 @@
     $('cycleLength').textContent = `${ru.format(r.cycleLength)} мм`;
     $('partsPerBar').textContent = `${r.partsPerBar} шт`;
     $('techLoss').textContent = `${ru.format(r.processLoss)} мм`;
-    $('reusableLeft').textContent = r.reusableRemainder > 0 ? `${ru.format(r.reusableRemainder)} мм` : 'нет';
+    $('gripTail').textContent = `${ru.format(r.fullBarGripTail)} мм`;
     $('efficiencyValue').textContent = `${Math.round(r.efficiency)}%`;
     $('efficiencyRing').style.setProperty('--p', clamp(r.efficiency, 0, 100).toFixed(1));
-    $('lastBarText').textContent = `${r.partsLastBar} ${plural(r.partsLastBar, 'деталь', 'детали', 'деталей')}`;
+
+    const remainderLabel = r.reusableRemainder > 0 ? ` · остаток ${ru.format(r.reusableRemainder)} мм` : ` · хвост ${ru.format(r.fullBarGripTail)} мм`;
+    $('lastBarText').textContent = `${r.partsLastBar} ${plural(r.partsLastBar, 'деталь', 'детали', 'деталей')}${remainderLabel}`;
     $('barBlock').hidden = false;
 
     const productOnLast = r.partsLastBar * r.input.partLength;
@@ -160,7 +194,14 @@
     const total = Math.max(1, r.input.stockLength);
     const pct = (v) => `${clamp(v / total * 100, 0, 100).toFixed(3)}%`;
     $('barViz').innerHTML = `<span class="bar-product" style="width:${pct(productOnLast)}"></span><span class="bar-process" style="width:${pct(processOnLast)}"></span><span class="bar-left" style="width:${pct(leftoverOnLast)}"></span>`;
-    $('barViz').setAttribute('aria-label', `Последний пруток: ${r.partsLastBar} деталей, технологические потери ${ru.format(processOnLast)} мм, остаток ${ru.format(leftoverOnLast)} мм.`);
+    $('barViz').setAttribute('aria-label', `Последний пруток: ${r.partsLastBar} деталей, технологические потери ${ru.format(processOnLast)} мм, остаток ${ru.format(leftoverOnLast)} мм. Минимальный зажим ${ru.format(r.input.minChuckGrip)} мм.`);
+
+    if (r.fullBarGripTail + 1e-9 < r.input.minChuckGrip) {
+      warning.hidden = false;
+      warning.textContent = `Ошибка безопасности: фактический хвост меньше минимального зажима ${ru.format(r.input.minChuckGrip)} мм.`;
+      $('saveBtn').disabled = true;
+      return;
+    }
 
     if (Math.abs(r.accountingDelta) > 0.01) {
       warning.hidden = false;
@@ -179,6 +220,7 @@
   function showToast(message) {
     clearTimeout(toastTimer);
     const node = $('toast');
+    if (!node) return;
     node.textContent = message;
     node.classList.add('show');
     toastTimer = window.setTimeout(() => node.classList.remove('show'), 1800);
@@ -197,7 +239,7 @@
   }
 
   function saveCurrent() {
-    if (!lastResult?.valid) return;
+    if (!lastResult?.valid || $('saveBtn')?.disabled) return;
     const item = {
       id: `${Date.now()}-${Math.random().toString(16).slice(2,8)}`,
       createdAt: new Date().toISOString(),
@@ -206,7 +248,8 @@
         bars: lastResult.bars,
         purchaseLength: lastResult.purchaseLength,
         targetQuantity: lastResult.targetQuantity,
-        reusableRemainder: lastResult.reusableRemainder
+        reusableRemainder: lastResult.reusableRemainder,
+        fullBarGripTail: lastResult.fullBarGripTail
       }
     };
     const history = getHistory();
@@ -224,6 +267,7 @@
   function renderHistory() {
     const items = getHistory();
     const list = $('historyList');
+    if (!list) return;
     list.replaceChildren();
     $('historyEmpty').hidden = items.length > 0;
     $('clearHistory').hidden = items.length === 0;
@@ -267,16 +311,20 @@
 
   function applyInput(data) {
     for (const id of fields) {
-      if (Object.prototype.hasOwnProperty.call(data, id)) $(id).value = data[id] ?? '';
+      const node = $(id);
+      if (node && Object.prototype.hasOwnProperty.call(data, id)) node.value = data[id] ?? '';
     }
     render();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   function clearCalculator() {
-    for (const id of fields) $(id).value = '';
+    for (const id of fields) {
+      const node = $(id);
+      if (node) node.value = '';
+    }
     renderNeutral();
-    $('material').focus({ preventScroll: true });
+    $('material')?.focus({ preventScroll: true });
     window.scrollTo({ top: 0, behavior: 'smooth' });
     showToast('Поля очищены');
   }
@@ -301,8 +349,9 @@
   }
 
   function updateNetworkStatus() {
-    const online = navigator.onLine;
-    $('networkStatus').textContent = online ? 'Онлайн · офлайн-кэш готов' : 'Офлайн режим';
+    const node = $('networkStatus');
+    if (!node) return;
+    node.textContent = navigator.onLine ? 'Онлайн · офлайн-кэш готов' : 'Офлайн режим';
   }
 
   function isIos() { return /iphone|ipad|ipod/i.test(navigator.userAgent); }
@@ -310,15 +359,15 @@
 
   function setupInstall() {
     if (isStandalone()) return;
-    if (isIos()) $('installBtn').hidden = false;
+    if (isIos() && $('installBtn')) $('installBtn').hidden = false;
     window.addEventListener('beforeinstallprompt', (event) => {
       event.preventDefault();
       deferredInstallPrompt = event;
-      $('installBtn').hidden = false;
+      if ($('installBtn')) $('installBtn').hidden = false;
     });
     window.addEventListener('appinstalled', () => {
       deferredInstallPrompt = null;
-      $('installBtn').hidden = true;
+      if ($('installBtn')) $('installBtn').hidden = true;
       showToast('CutCalc установлен');
     });
   }
@@ -330,7 +379,7 @@
       deferredInstallPrompt = null;
       return;
     }
-    if (isIos()) $('iosHint').hidden = false;
+    if (isIos() && $('iosHint')) $('iosHint').hidden = false;
     else showToast('Установка доступна из меню браузера');
   }
 
@@ -341,32 +390,37 @@
   }
 
   initTheme();
-  numberFields.forEach((id) => { $(id).addEventListener('input', render); $(id).addEventListener('change', render); });
-  $('material').addEventListener('input', render);
-  form.addEventListener('submit', (e) => e.preventDefault());
-  $('clearAll').addEventListener('click', clearCalculator);
-  $('resetLosses').addEventListener('click', () => {
-    $('kerf').value = '';
-    $('faceA').value = '';
-    $('faceB').value = '';
+  renderMachineRule();
+  numberFields.forEach((id) => {
+    const node = $(id);
+    if (!node) return;
+    node.addEventListener('input', render);
+    node.addEventListener('change', render);
+  });
+  on('material', 'input', render);
+  form?.addEventListener('submit', (e) => e.preventDefault());
+  on('clearAll', 'click', clearCalculator);
+  on('resetLosses', 'click', () => {
+    ['kerf','faceA','faceB'].forEach((id) => { if ($(id)) $(id).value = ''; });
     render();
   });
-  $('saveBtn').addEventListener('click', saveCurrent);
-  $('clearHistory').addEventListener('click', () => {
+  on('saveBtn', 'click', saveCurrent);
+  on('clearHistory', 'click', () => {
     if (getHistory().length && confirm('Удалить всю историю расчётов на этом устройстве?')) {
       setHistory([]);
       renderHistory();
       showToast('История очищена');
     }
   });
-  $('themeToggle').addEventListener('click', toggleTheme);
-  $('installBtn').addEventListener('click', requestInstall);
-  $('closeIosHint').addEventListener('click', () => $('iosHint').hidden = true);
-  $('iosHint').addEventListener('click', (e) => { if (e.target === $('iosHint')) $('iosHint').hidden = true; });
+  on('themeToggle', 'click', toggleTheme);
+  on('installBtn', 'click', requestInstall);
+  on('closeIosHint', 'click', () => { if ($('iosHint')) $('iosHint').hidden = true; });
+  on('iosHint', 'click', (e) => { if (e.target === $('iosHint')) $('iosHint').hidden = true; });
+
   document.querySelectorAll('.nav-btn').forEach(btn => btn.addEventListener('click', () => switchScreen(btn.dataset.target)));
   document.querySelectorAll('.material-card').forEach(btn => btn.addEventListener('click', () => {
-    $('material').value = btn.dataset.material;
-    $('diameter').value = btn.dataset.diameter;
+    if ($('material')) $('material').value = btn.dataset.material || '';
+    if ($('diameter')) $('diameter').value = btn.dataset.diameter || '';
     render();
     switchScreen('calc');
     showToast('Пресет применён');
