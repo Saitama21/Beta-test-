@@ -9,6 +9,7 @@
   const form = $('calcForm');
   const fields = ['material','diameter','partLength','quantity','kerf','faceA','faceB','stockLength','stockFace','deadTail','reservePct'];
   const numberFields = fields.filter((id) => id !== 'material');
+  const requiredCore = ['partLength','quantity','stockLength'];
   let deferredInstallPrompt = null;
   let lastResult = null;
   let toastTimer = 0;
@@ -18,9 +19,17 @@
   const clamp = (n, min, max) => Math.min(max, Math.max(min, n));
   const finite = (value, fallback = 0) => Number.isFinite(Number(value)) ? Number(value) : fallback;
 
+  function hasRawValue(id) {
+    return String($(id).value ?? '').trim() !== '';
+  }
+
+  function hasAnyCoreInput() {
+    return requiredCore.some(hasRawValue);
+  }
+
   function readInput() {
     return {
-      material: $('material').value.trim() || 'Материал',
+      material: $('material').value.trim(),
       diameter: Math.max(0, finite($('diameter').value)),
       partLength: Math.max(0, finite($('partLength').value)),
       quantity: Math.max(0, Math.floor(finite($('quantity').value))),
@@ -36,8 +45,8 @@
 
   function calculate(i) {
     const errors = [];
-    if (i.partLength <= 0) errors.push('Длина детали должна быть больше 0 мм.');
-    if (i.quantity <= 0) errors.push('Количество деталей должно быть больше нуля.');
+    if (i.partLength <= 0) errors.push('Укажи длину детали.');
+    if (i.quantity <= 0) errors.push('Укажи количество деталей.');
     if (i.stockLength <= 0) errors.push('Укажи длину прутка.');
 
     const cycleLength = i.partLength + i.faceA + i.faceB + i.kerf;
@@ -45,9 +54,11 @@
     const usableForCycles = Math.max(0, i.stockLength - i.stockFace - i.deadTail);
     const partsPerBar = cycleLength > 0 ? Math.floor(usableForCycles / cycleLength) : 0;
 
-    if (cycleLength <= 0) errors.push('Расход на одну деталь равен нулю.');
+    if (cycleLength <= 0 && i.partLength > 0) errors.push('Расход на одну деталь равен нулю.');
     if (i.deadTail + i.stockFace >= i.stockLength && i.stockLength > 0) errors.push('Мёртвый хвост и первая торцовка занимают весь пруток.');
-    if (partsPerBar < 1 && !errors.length) errors.push('Из такого прутка не получается ни одной детали с заданными припусками.');
+    if (partsPerBar < 1 && i.partLength > 0 && i.stockLength > 0 && !errors.length) {
+      errors.push('Из такого прутка не получается ни одной детали с заданными припусками.');
+    }
 
     if (errors.length) return { valid: false, errors, input: i, cycleLength, targetQuantity, partsPerBar };
 
@@ -78,32 +89,62 @@
     };
   }
 
-  function render() {
-    const r = calculate(readInput());
-    lastResult = r;
-    const warning = $('warning');
+  function renderNeutral() {
+    lastResult = null;
+    $('resultLabel').textContent = 'Расчёт не выполнен';
+    $('purchaseMeters').textContent = '—';
+    $('purchaseHint').textContent = 'Заполни длину детали, количество и длину прутка';
+    $('cycleLength').textContent = '—';
+    $('partsPerBar').textContent = '—';
+    $('techLoss').textContent = '—';
+    $('reusableLeft').textContent = '—';
+    $('efficiencyValue').textContent = '—';
+    $('efficiencyRing').style.setProperty('--p', 0);
+    $('barViz').replaceChildren();
+    $('barBlock').hidden = true;
+    $('lastBarText').textContent = '—';
+    $('warning').hidden = true;
+    $('saveBtn').disabled = true;
+  }
 
-    if (!r.valid) {
-      $('purchaseMeters').textContent = '—';
-      $('purchaseHint').textContent = 'Проверь исходные данные';
-      $('cycleLength').textContent = r.cycleLength > 0 ? `${ru.format(r.cycleLength)} мм` : '—';
-      $('partsPerBar').textContent = '—';
-      $('techLoss').textContent = '—';
-      $('reusableLeft').textContent = '—';
-      $('efficiencyValue').textContent = '—';
-      $('efficiencyRing').style.setProperty('--p', 0);
-      $('barViz').innerHTML = '';
-      $('lastBarText').textContent = '—';
-      warning.hidden = false;
-      warning.textContent = r.errors.join(' ');
-      $('saveBtn').disabled = true;
+  function renderInvalid(r) {
+    lastResult = r;
+    $('resultLabel').textContent = 'Нужны исходные данные';
+    $('purchaseMeters').textContent = '—';
+    $('purchaseHint').textContent = 'Заполни обязательные поля';
+    $('cycleLength').textContent = r.cycleLength > 0 ? `${ru.format(r.cycleLength)} мм` : '—';
+    $('partsPerBar').textContent = '—';
+    $('techLoss').textContent = '—';
+    $('reusableLeft').textContent = '—';
+    $('efficiencyValue').textContent = '—';
+    $('efficiencyRing').style.setProperty('--p', 0);
+    $('barViz').replaceChildren();
+    $('barBlock').hidden = true;
+    $('lastBarText').textContent = '—';
+    $('warning').hidden = false;
+    $('warning').textContent = r.errors.join(' ');
+    $('saveBtn').disabled = true;
+  }
+
+  function render() {
+    if (!hasAnyCoreInput()) {
+      renderNeutral();
       return;
     }
 
+    const r = calculate(readInput());
+    if (!r.valid) {
+      renderInvalid(r);
+      return;
+    }
+
+    lastResult = r;
+    const warning = $('warning');
     warning.hidden = true;
     $('saveBtn').disabled = false;
+    $('resultLabel').textContent = 'Купить материала';
     $('purchaseMeters').textContent = ru3.format(r.purchaseLength / 1000);
-    $('purchaseHint').textContent = `${r.bars} ${plural(r.bars, 'пруток', 'прутка', 'прутков')} × ${ru3.format(r.input.stockLength / 1000)} м · ${r.targetQuantity} шт с запасом`;
+    $('purchaseHint').textContent = `${r.bars} ${plural(r.bars, 'пруток', 'прутка', 'прутков')} × ${ru3.format(r.input.stockLength / 1000)} м · ${r.targetQuantity} шт${r.input.reservePct > 0 ? ' с запасом' : ''}`;
     $('cycleLength').textContent = `${ru.format(r.cycleLength)} мм`;
     $('partsPerBar').textContent = `${r.partsPerBar} шт`;
     $('techLoss').textContent = `${ru.format(r.processLoss)} мм`;
@@ -111,6 +152,7 @@
     $('efficiencyValue').textContent = `${Math.round(r.efficiency)}%`;
     $('efficiencyRing').style.setProperty('--p', clamp(r.efficiency, 0, 100).toFixed(1));
     $('lastBarText').textContent = `${r.partsLastBar} ${plural(r.partsLastBar, 'деталь', 'детали', 'деталей')}`;
+    $('barBlock').hidden = false;
 
     const productOnLast = r.partsLastBar * r.input.partLength;
     const processOnLast = r.partsLastBar * (r.input.faceA + r.input.faceB + r.input.kerf) + r.input.stockFace;
@@ -123,6 +165,7 @@
     if (Math.abs(r.accountingDelta) > 0.01) {
       warning.hidden = false;
       warning.textContent = 'Внутренняя проверка баланса длины не сошлась. Не используй результат и сообщи об ошибке.';
+      $('saveBtn').disabled = true;
     }
   }
 
@@ -190,7 +233,9 @@
       card.className = 'history-card';
       const left = document.createElement('div');
       const title = document.createElement('h3');
-      title.textContent = `${item.input.material} · Ø${ru.format(item.input.diameter)}`;
+      const mat = item.input.material || 'Без названия';
+      const dia = item.input.diameter > 0 ? ` · Ø${ru.format(item.input.diameter)}` : '';
+      title.textContent = `${mat}${dia}`;
       const meta = document.createElement('p');
       meta.textContent = `${item.input.quantity} шт × ${ru.format(item.input.partLength)} мм · ${formatDate(item.createdAt)}`;
       left.append(title, meta);
@@ -206,10 +251,13 @@
       const actions = document.createElement('div');
       actions.className = 'history-actions';
       const load = document.createElement('button');
-      load.type = 'button'; load.textContent = 'Открыть';
+      load.type = 'button';
+      load.textContent = 'Открыть';
       load.addEventListener('click', () => { applyInput(item.input); switchScreen('calc'); showToast('Расчёт загружен'); });
       const del = document.createElement('button');
-      del.type = 'button'; del.textContent = 'Удалить'; del.className = 'delete';
+      del.type = 'button';
+      del.textContent = 'Удалить';
+      del.className = 'delete';
       del.addEventListener('click', () => { setHistory(getHistory().filter(x => x.id !== item.id)); renderHistory(); });
       actions.append(load, del);
       card.append(left, result, actions);
@@ -219,15 +267,18 @@
 
   function applyInput(data) {
     for (const id of fields) {
-      if (Object.prototype.hasOwnProperty.call(data, id)) $(id).value = data[id];
+      if (Object.prototype.hasOwnProperty.call(data, id)) $(id).value = data[id] ?? '';
     }
     render();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  function loadExample() {
-    applyInput({material:'PE 1000 белый',diameter:50,partLength:20,quantity:208,kerf:3,faceA:0.5,faceB:0,stockLength:5000,stockFace:0.5,deadTail:80,reservePct:0});
-    showToast('Пример загружен');
+  function clearCalculator() {
+    for (const id of fields) $(id).value = '';
+    renderNeutral();
+    $('material').focus({ preventScroll: true });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    showToast('Поля очищены');
   }
 
   function switchScreen(name) {
@@ -293,20 +344,37 @@
   numberFields.forEach((id) => { $(id).addEventListener('input', render); $(id).addEventListener('change', render); });
   $('material').addEventListener('input', render);
   form.addEventListener('submit', (e) => e.preventDefault());
-  $('loadExample').addEventListener('click', loadExample);
-  $('resetLosses').addEventListener('click', () => { $('kerf').value = 0; $('faceA').value = 0; $('faceB').value = 0; render(); });
+  $('clearAll').addEventListener('click', clearCalculator);
+  $('resetLosses').addEventListener('click', () => {
+    $('kerf').value = '';
+    $('faceA').value = '';
+    $('faceB').value = '';
+    render();
+  });
   $('saveBtn').addEventListener('click', saveCurrent);
-  $('clearHistory').addEventListener('click', () => { if (getHistory().length && confirm('Удалить всю историю расчётов на этом устройстве?')) { setHistory([]); renderHistory(); showToast('История очищена'); } });
+  $('clearHistory').addEventListener('click', () => {
+    if (getHistory().length && confirm('Удалить всю историю расчётов на этом устройстве?')) {
+      setHistory([]);
+      renderHistory();
+      showToast('История очищена');
+    }
+  });
   $('themeToggle').addEventListener('click', toggleTheme);
   $('installBtn').addEventListener('click', requestInstall);
   $('closeIosHint').addEventListener('click', () => $('iosHint').hidden = true);
   $('iosHint').addEventListener('click', (e) => { if (e.target === $('iosHint')) $('iosHint').hidden = true; });
   document.querySelectorAll('.nav-btn').forEach(btn => btn.addEventListener('click', () => switchScreen(btn.dataset.target)));
-  document.querySelectorAll('.material-card').forEach(btn => btn.addEventListener('click', () => { $('material').value = btn.dataset.material; $('diameter').value = btn.dataset.diameter; render(); switchScreen('calc'); showToast('Пресет применён'); }));
+  document.querySelectorAll('.material-card').forEach(btn => btn.addEventListener('click', () => {
+    $('material').value = btn.dataset.material;
+    $('diameter').value = btn.dataset.diameter;
+    render();
+    switchScreen('calc');
+    showToast('Пресет применён');
+  }));
   window.addEventListener('online', updateNetworkStatus);
   window.addEventListener('offline', updateNetworkStatus);
 
-  render();
+  renderNeutral();
   renderHistory();
   updateNetworkStatus();
   setupInstall();
