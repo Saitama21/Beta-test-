@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#0b0d10">
+  <meta name="color-scheme" content="dark light">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="CutCalc CNC">
+  <meta name="description" content="Офлайн-калькулятор расхода прутка и раскроя деталей для цеха.">
+  <title>CutCalc CNC</title>
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="apple-touch-icon" href="./icons/icon-180.png">
+  <link rel="icon" href="./icons/icon-192.png">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">ЦЕХОВОЙ КАЛЬКУЛЯТОР</p>
+        <h1>CutCalc <span>CNC</span></h1>
+      </div>
+      <div class="top-actions">
+        <button id="themeToggle" class="icon-btn" type="button" aria-label="Сменить тему">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v2m0 14v2M3 12h2m14 0h2M5.64 5.64l1.42 1.42m9.88 9.88 1.42 1.42m0-12.72-1.42 1.42M7.06 16.94l-1.42 1.42M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z"/></svg>
+        </button>
+        <button id="installBtn" class="icon-btn install-btn" type="button" aria-label="Установить приложение" hidden>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 19h14"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <section id="screen-calc" class="screen active" data-screen="calc">
+        <div class="status-row">
+          <div class="status-pill"><span class="status-dot"></span><span id="networkStatus">Офлайн готов</span></div>
+          <button id="loadExample" class="text-btn" type="button">PE1000 Ø50 · пример</button>
+        </div>
+
+        <form id="calcForm" novalidate>
+          <section class="panel identity-panel">
+            <div class="section-head">
+              <div><p class="kicker">ЗАГОТОВКА</p><h2>Материал и деталь</h2></div>
+              <span class="badge">КРУГ</span>
+            </div>
+
+            <label class="field field-wide">
+              <span>Материал</span>
+              <input id="material" name="material" type="text" value="PE 1000 белый" maxlength="60" autocomplete="off">
+            </label>
+
+            <div class="field-grid three">
+              <label class="field">
+                <span>Диаметр</span>
+                <div class="input-unit"><input id="diameter" name="diameter" type="number" value="50" min="0.1" step="0.1" inputmode="decimal"><b>мм</b></div>
+              </label>
+              <label class="field">
+                <span>Длина детали</span>
+                <div class="input-unit"><input id="partLength" name="partLength" type="number" value="20" min="0.1" step="0.1" inputmode="decimal"><b>мм</b></div>
+              </label>
+              <label class="field">
+                <span>Количество</span>
+                <div class="input-unit"><input id="quantity" name="quantity" type="number" value="208" min="1" step="1" inputmode="numeric"><b>шт</b></div>
+              </label>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="section-head">
+              <div><p class="kicker">ОБРАБОТКА</p><h2>Потери на цикл</h2></div>
+              <button id="resetLosses" class="mini-btn" type="button">Сбросить</button>
+            </div>
+            <div class="field-grid three">
+              <label class="field"><span>Отрезной рез</span><div class="input-unit"><input id="kerf" name="kerf" type="number" value="3" min="0" step="0.1" inputmode="decimal"><b>мм</b></div></label>
+              <label class="field"><span>Торцовка A</span><div class="input-unit"><input id="faceA" name="faceA" type="number" value="0.5" min="0" step="0.1" inputmode="decimal"><b>мм</b></div></label>
+              <label class="field"><span>Торцовка B</span><div class="input-unit"><input id="faceB" name="faceB" type="number" value="0" min="0" step="0.1" inputmode="decimal"><b>мм</b></div></label>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="section-head"><div><p class="kicker">ПРУТОК</p><h2>Условия зажима</h2></div></div>
+            <div class="field-grid four">
+              <label class="field"><span>Длина прутка</span><div class="input-unit"><input id="stockLength" name="stockLength" type="number" value="5000" min="1" step="1" inputmode="decimal"><b>мм</b></div></label>
+              <label class="field"><span>Первая торцовка</span><div class="input-unit"><input id="stockFace" name="stockFace" type="number" value="0.5" min="0" step="0.1" inputmode="decimal"><b>мм</b></div></label>
+              <label class="field"><span>Мёртвый хвост</span><div class="input-unit"><input id="deadTail" name="deadTail" type="number" value="80" min="0" step="1" inputmode="decimal"><b>мм</b></div></label>
+              <label class="field"><span>Запас деталей</span><div class="input-unit"><input id="reservePct" name="reservePct" type="number" value="0" min="0" max="100" step="0.5" inputmode="decimal"><b>%</b></div></label>
+            </div>
+          </section>
+        </form>
+
+        <section id="resultPanel" class="result-panel" aria-live="polite">
+          <div class="result-top">
+            <div>
+              <p class="kicker">ИТОГ</p>
+              <p class="result-label">Купить материала</p>
+              <div class="hero-number"><strong id="purchaseMeters">5,000</strong><span>м</span></div>
+              <p id="purchaseHint" class="muted">1 пруток × 5,000 м</p>
+            </div>
+            <div class="efficiency-ring" id="efficiencyRing" style="--p:83"><div><strong id="efficiencyValue">83%</strong><span>в детали</span></div></div>
+          </div>
+
+          <div class="metrics-grid">
+            <div class="metric"><span>Расход / деталь</span><strong id="cycleLength">23,5 мм</strong></div>
+            <div class="metric"><span>Деталей / пруток</span><strong id="partsPerBar">209 шт</strong></div>
+            <div class="metric"><span>Тех. расход</span><strong id="techLoss">728,5 мм</strong></div>
+            <div class="metric"><span>Остаток после партии</span><strong id="reusableLeft">111,5 мм</strong></div>
+          </div>
+
+          <div class="bar-block">
+            <div class="bar-head"><span>Раскрой последнего прутка</span><strong id="lastBarText">208 деталей</strong></div>
+            <div id="barViz" class="bar-viz" role="img" aria-label="Визуализация раскроя прутка"><span class="bar-product" style="width:80%"></span><span class="bar-process" style="width:15%"></span><span class="bar-left" style="width:5%"></span></div>
+            <div class="legend"><span><i class="lg-product"></i>детали</span><span><i class="lg-process"></i>рез + торцовка</span><span><i class="lg-left"></i>остаток</span></div>
+          </div>
+
+          <div id="warning" class="warning" hidden></div>
+          <button id="saveBtn" class="primary-btn" type="button">Сохранить расчёт</button>
+        </section>
+      </section>
+
+      <section id="screen-history" class="screen" data-screen="history">
+        <div class="screen-title"><div><p class="eyebrow">ЛОКАЛЬНО НА УСТРОЙСТВЕ</p><h2>История</h2></div><button id="clearHistory" class="text-btn danger" type="button">Очистить</button></div>
+        <div id="historyList" class="history-list"></div>
+        <div id="historyEmpty" class="empty-state"><div class="empty-icon">↺</div><h3>Пока пусто</h3><p>Сохрани первый расчёт — он останется доступен даже без интернета.</p></div>
+      </section>
+
+      <section id="screen-materials" class="screen" data-screen="materials">
+        <div class="screen-title"><div><p class="eyebrow">БЫСТРЫЕ ПРЕСЕТЫ</p><h2>Материалы</h2></div></div>
+        <div class="material-grid" id="materialGrid">
+          <button class="material-card" type="button" data-material="PE 1000 белый" data-diameter="50"><span>PE</span><strong>PE 1000 белый</strong><small>Ø50 · текущий</small></button>
+          <button class="material-card" type="button" data-material="AISI 304" data-diameter="50"><span>304</span><strong>AISI 304</strong><small>Ø50</small></button>
+          <button class="material-card" type="button" data-material="Полиамид PA6" data-diameter="60"><span>PA6</span><strong>Полиамид</strong><small>Ø60</small></button>
+          <button class="material-card" type="button" data-material="POM-C" data-diameter="50"><span>POM</span><strong>POM-C</strong><small>Ø50</small></button>
+        </div>
+        <p class="materials-note">Пресет меняет только материал и диаметр. Технологические припуски остаются твоими.</p>
+      </section>
+    </main>
+
+    <nav class="bottom-nav" aria-label="Основная навигация">
+      <button class="nav-btn active" type="button" data-target="calc"><svg viewBox="0 0 24 24"><path d="M4 5h16M7 9h10M6 13h3m3 0h3m3 0h1M6 17h3m3 0h3m3 0h1"/></svg><span>Расчёт</span></button>
+      <button class="nav-btn" type="button" data-target="history"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.34-5.66L4 8.67M4 4v4.67h4.67M12 8v4l3 2"/></svg><span>История</span></button>
+      <button class="nav-btn" type="button" data-target="materials"><svg viewBox="0 0 24 24"><path d="M5 5h14v14H5zM9 5v14m6-14v14"/></svg><span>Материалы</span></button>
+    </nav>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <div id="iosHint" class="modal-backdrop" hidden>
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="iosTitle">
+      <div class="sheet-handle"></div>
+      <h2 id="iosTitle">Установить на iPhone</h2>
+      <p>Нажми <b>«Поделиться»</b> в Safari, затем <b>«На экран Домой»</b>. После установки CutCalc работает как отдельное приложение и без сети.</p>
+      <button id="closeIosHint" class="primary-btn" type="button">Понятно</button>
+    </div>
+  </div>
+
+  <script src="./app.js" defer></script>
+</body>
+</html>
