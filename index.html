@@ -36,7 +36,7 @@
       <section id="screen-calc" class="screen active" data-screen="calc">
         <div class="status-row">
           <div class="status-pill"><span class="status-dot"></span><span id="networkStatus">Офлайн готов</span></div>
-          <button id="loadExample" class="text-btn" type="button">PE1000 Ø50 · пример</button>
+          <button id="clearAll" class="text-btn" type="button">Очистить всё</button>
         </div>
 
         <form id="calcForm" novalidate>
@@ -48,21 +48,21 @@
 
             <label class="field field-wide">
               <span>Материал</span>
-              <input id="material" name="material" type="text" value="PE 1000 белый" maxlength="60" autocomplete="off">
+              <input id="material" name="material" type="text" value="" placeholder="Введите материал" maxlength="60" autocomplete="off">
             </label>
 
             <div class="field-grid three">
               <label class="field">
                 <span>Диаметр</span>
-                <div class="input-unit"><input id="diameter" name="diameter" type="number" value="50" min="0.1" step="0.1" inputmode="decimal"><b>мм</b></div>
+                <div class="input-unit"><input id="diameter" name="diameter" type="number" value="" placeholder="—" min="0.1" step="0.1" inputmode="decimal"><b>мм</b></div>
               </label>
               <label class="field">
-                <span>Длина детали</span>
-                <div class="input-unit"><input id="partLength" name="partLength" type="number" value="20" min="0.1" step="0.1" inputmode="decimal"><b>мм</b></div>
+                <span>Длина детали *</span>
+                <div class="input-unit"><input id="partLength" name="partLength" type="number" value="" placeholder="—" min="0.1" step="0.1" inputmode="decimal" required><b>мм</b></div>
               </label>
               <label class="field">
-                <span>Количество</span>
-                <div class="input-unit"><input id="quantity" name="quantity" type="number" value="208" min="1" step="1" inputmode="numeric"><b>шт</b></div>
+                <span>Количество *</span>
+                <div class="input-unit"><input id="quantity" name="quantity" type="number" value="" placeholder="—" min="1" step="1" inputmode="numeric" required><b>шт</b></div>
               </label>
             </div>
           </section>
@@ -70,23 +70,24 @@
           <section class="panel">
             <div class="section-head">
               <div><p class="kicker">ОБРАБОТКА</p><h2>Потери на цикл</h2></div>
-              <button id="resetLosses" class="mini-btn" type="button">Сбросить</button>
+              <button id="resetLosses" class="mini-btn" type="button">Очистить</button>
             </div>
             <div class="field-grid three">
-              <label class="field"><span>Отрезной рез</span><div class="input-unit"><input id="kerf" name="kerf" type="number" value="3" min="0" step="0.1" inputmode="decimal"><b>мм</b></div></label>
-              <label class="field"><span>Торцовка A</span><div class="input-unit"><input id="faceA" name="faceA" type="number" value="0.5" min="0" step="0.1" inputmode="decimal"><b>мм</b></div></label>
-              <label class="field"><span>Торцовка B</span><div class="input-unit"><input id="faceB" name="faceB" type="number" value="0" min="0" step="0.1" inputmode="decimal"><b>мм</b></div></label>
+              <label class="field"><span>Отрезной рез</span><div class="input-unit"><input id="kerf" name="kerf" type="number" value="" placeholder="—" min="0" step="0.1" inputmode="decimal"><b>мм</b></div></label>
+              <label class="field"><span>Торцовка A</span><div class="input-unit"><input id="faceA" name="faceA" type="number" value="" placeholder="—" min="0" step="0.1" inputmode="decimal"><b>мм</b></div></label>
+              <label class="field"><span>Торцовка B</span><div class="input-unit"><input id="faceB" name="faceB" type="number" value="" placeholder="—" min="0" step="0.1" inputmode="decimal"><b>мм</b></div></label>
             </div>
           </section>
 
           <section class="panel">
             <div class="section-head"><div><p class="kicker">ПРУТОК</p><h2>Условия зажима</h2></div></div>
             <div class="field-grid four">
-              <label class="field"><span>Длина прутка</span><div class="input-unit"><input id="stockLength" name="stockLength" type="number" value="5000" min="1" step="1" inputmode="decimal"><b>мм</b></div></label>
-              <label class="field"><span>Первая торцовка</span><div class="input-unit"><input id="stockFace" name="stockFace" type="number" value="0.5" min="0" step="0.1" inputmode="decimal"><b>мм</b></div></label>
-              <label class="field"><span>Мёртвый хвост</span><div class="input-unit"><input id="deadTail" name="deadTail" type="number" value="80" min="0" step="1" inputmode="decimal"><b>мм</b></div></label>
-              <label class="field"><span>Запас деталей</span><div class="input-unit"><input id="reservePct" name="reservePct" type="number" value="0" min="0" max="100" step="0.5" inputmode="decimal"><b>%</b></div></label>
+              <label class="field"><span>Длина прутка *</span><div class="input-unit"><input id="stockLength" name="stockLength" type="number" value="" placeholder="—" min="1" step="1" inputmode="decimal" required><b>мм</b></div></label>
+              <label class="field"><span>Первая торцовка</span><div class="input-unit"><input id="stockFace" name="stockFace" type="number" value="" placeholder="—" min="0" step="0.1" inputmode="decimal"><b>мм</b></div></label>
+              <label class="field"><span>Мёртвый хвост</span><div class="input-unit"><input id="deadTail" name="deadTail" type="number" value="" placeholder="—" min="0" step="1" inputmode="decimal"><b>мм</b></div></label>
+              <label class="field"><span>Запас деталей</span><div class="input-unit"><input id="reservePct" name="reservePct" type="number" value="" placeholder="—" min="0" max="100" step="0.5" inputmode="decimal"><b>%</b></div></label>
             </div>
+            <p class="required-note">* обязательные поля для расчёта</p>
           </section>
         </form>
 
@@ -94,28 +95,28 @@
           <div class="result-top">
             <div>
               <p class="kicker">ИТОГ</p>
-              <p class="result-label">Купить материала</p>
-              <div class="hero-number"><strong id="purchaseMeters">5,000</strong><span>м</span></div>
-              <p id="purchaseHint" class="muted">1 пруток × 5,000 м</p>
+              <p id="resultLabel" class="result-label">Расчёт не выполнен</p>
+              <div class="hero-number"><strong id="purchaseMeters">—</strong><span>м</span></div>
+              <p id="purchaseHint" class="muted">Заполни длину детали, количество и длину прутка</p>
             </div>
-            <div class="efficiency-ring" id="efficiencyRing" style="--p:83"><div><strong id="efficiencyValue">83%</strong><span>в детали</span></div></div>
+            <div class="efficiency-ring" id="efficiencyRing" style="--p:0"><div><strong id="efficiencyValue">—</strong><span>в детали</span></div></div>
           </div>
 
           <div class="metrics-grid">
-            <div class="metric"><span>Расход / деталь</span><strong id="cycleLength">23,5 мм</strong></div>
-            <div class="metric"><span>Деталей / пруток</span><strong id="partsPerBar">209 шт</strong></div>
-            <div class="metric"><span>Тех. расход</span><strong id="techLoss">728,5 мм</strong></div>
-            <div class="metric"><span>Остаток после партии</span><strong id="reusableLeft">111,5 мм</strong></div>
+            <div class="metric"><span>Расход / деталь</span><strong id="cycleLength">—</strong></div>
+            <div class="metric"><span>Деталей / пруток</span><strong id="partsPerBar">—</strong></div>
+            <div class="metric"><span>Тех. расход</span><strong id="techLoss">—</strong></div>
+            <div class="metric"><span>Остаток после партии</span><strong id="reusableLeft">—</strong></div>
           </div>
 
-          <div class="bar-block">
-            <div class="bar-head"><span>Раскрой последнего прутка</span><strong id="lastBarText">208 деталей</strong></div>
-            <div id="barViz" class="bar-viz" role="img" aria-label="Визуализация раскроя прутка"><span class="bar-product" style="width:80%"></span><span class="bar-process" style="width:15%"></span><span class="bar-left" style="width:5%"></span></div>
+          <div id="barBlock" class="bar-block" hidden>
+            <div class="bar-head"><span>Раскрой последнего прутка</span><strong id="lastBarText">—</strong></div>
+            <div id="barViz" class="bar-viz" role="img" aria-label="Визуализация раскроя прутка"></div>
             <div class="legend"><span><i class="lg-product"></i>детали</span><span><i class="lg-process"></i>рез + торцовка</span><span><i class="lg-left"></i>остаток</span></div>
           </div>
 
           <div id="warning" class="warning" hidden></div>
-          <button id="saveBtn" class="primary-btn" type="button">Сохранить расчёт</button>
+          <button id="saveBtn" class="primary-btn" type="button" disabled>Сохранить расчёт</button>
         </section>
       </section>
 
@@ -128,12 +129,12 @@
       <section id="screen-materials" class="screen" data-screen="materials">
         <div class="screen-title"><div><p class="eyebrow">БЫСТРЫЕ ПРЕСЕТЫ</p><h2>Материалы</h2></div></div>
         <div class="material-grid" id="materialGrid">
-          <button class="material-card" type="button" data-material="PE 1000 белый" data-diameter="50"><span>PE</span><strong>PE 1000 белый</strong><small>Ø50 · текущий</small></button>
-          <button class="material-card" type="button" data-material="AISI 304" data-diameter="50"><span>304</span><strong>AISI 304</strong><small>Ø50</small></button>
-          <button class="material-card" type="button" data-material="Полиамид PA6" data-diameter="60"><span>PA6</span><strong>Полиамид</strong><small>Ø60</small></button>
-          <button class="material-card" type="button" data-material="POM-C" data-diameter="50"><span>POM</span><strong>POM-C</strong><small>Ø50</small></button>
+          <button class="material-card" type="button" data-material="PE 1000 белый" data-diameter="50"><span>PE</span><strong>PE 1000 белый</strong><small>Ø50 · пресет</small></button>
+          <button class="material-card" type="button" data-material="AISI 304" data-diameter="50"><span>304</span><strong>AISI 304</strong><small>Ø50 · пресет</small></button>
+          <button class="material-card" type="button" data-material="Полиамид PA6" data-diameter="60"><span>PA6</span><strong>Полиамид</strong><small>Ø60 · пресет</small></button>
+          <button class="material-card" type="button" data-material="POM-C" data-diameter="50"><span>POM</span><strong>POM-C</strong><small>Ø50 · пресет</small></button>
         </div>
-        <p class="materials-note">Пресет меняет только материал и диаметр. Технологические припуски остаются твоими.</p>
+        <p class="materials-note">Пресет — только быстрый ввод материала и диаметра. На стартовом экране ничего не подставляется автоматически.</p>
       </section>
     </main>
 
