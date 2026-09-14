@@ -13,8 +13,8 @@
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="apple-touch-icon" href="./icons/icon-180.png">
   <link rel="icon" href="./icons/icon-192.png">
-  <link rel="stylesheet" href="./styles.css?v=1.2.0">
-  <link rel="stylesheet" href="./ui-shell.css?v=1.2.0">
+  <link rel="stylesheet" href="./styles.css?v=1.4.0">
+  <link rel="stylesheet" href="./ui-shell.css?v=1.4.0">
 </head>
 <body>
   <div class="app-shell">
@@ -82,10 +82,16 @@
 
           <section class="panel">
             <div class="section-head"><div><p class="kicker">ПРУТОК</p><h2>Условия зажима</h2></div></div>
-            <div class="field-grid four">
+            <div class="machine-rule" aria-label="Правило станка: минимальный зажим в кулачках 46 миллиметров">
+              <div>
+                <span>Минимальный зажим в кулачках</span>
+                <small>Правило станка · учитывается автоматически</small>
+              </div>
+              <strong id="minGripValue">46 мм</strong>
+            </div>
+            <div class="field-grid three stock-grid">
               <label class="field"><span>Длина прутка *</span><div class="input-unit"><input id="stockLength" name="stockLength" type="number" value="" placeholder="—" min="1" step="1" inputmode="decimal" required><b>мм</b></div></label>
               <label class="field"><span>Первая торцовка</span><div class="input-unit"><input id="stockFace" name="stockFace" type="number" value="" placeholder="—" min="0" step="0.1" inputmode="decimal"><b>мм</b></div></label>
-              <label class="field"><span>Мёртвый хвост</span><div class="input-unit"><input id="deadTail" name="deadTail" type="number" value="" placeholder="—" min="0" step="1" inputmode="decimal"><b>мм</b></div></label>
               <label class="field"><span>Запас деталей</span><div class="input-unit"><input id="reservePct" name="reservePct" type="number" value="" placeholder="—" min="0" max="100" step="0.5" inputmode="decimal"><b>%</b></div></label>
             </div>
             <p class="required-note">* обязательные поля для расчёта</p>
@@ -107,13 +113,13 @@
             <div class="metric"><span>Расход / деталь</span><strong id="cycleLength">—</strong></div>
             <div class="metric"><span>Деталей / пруток</span><strong id="partsPerBar">—</strong></div>
             <div class="metric"><span>Тех. расход</span><strong id="techLoss">—</strong></div>
-            <div class="metric"><span>Остаток после партии</span><strong id="reusableLeft">—</strong></div>
+            <div class="metric"><span>Хвост в кулачках</span><strong id="gripTail">—</strong></div>
           </div>
 
           <div id="barBlock" class="bar-block" hidden>
             <div class="bar-head"><span>Раскрой последнего прутка</span><strong id="lastBarText">—</strong></div>
             <div id="barViz" class="bar-viz" role="img" aria-label="Визуализация раскроя прутка"></div>
-            <div class="legend"><span><i class="lg-product"></i>детали</span><span><i class="lg-process"></i>рез + торцовка</span><span><i class="lg-left"></i>остаток</span></div>
+            <div class="legend"><span><i class="lg-product"></i>детали</span><span><i class="lg-process"></i>рез + торцовка</span><span><i class="lg-left"></i>остаток / зажим</span></div>
           </div>
 
           <div id="warning" class="warning" hidden></div>
@@ -156,6 +162,7 @@
     </div>
   </div>
 
-  <script src="./app.js?v=1.2.0" defer></script>
+  <script src="./machine-config.js?v=1.4.0" defer></script>
+  <script src="./app.js?v=1.4.0" defer></script>
 </body>
 </html>
