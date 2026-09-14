@@ -1,6 +1,6 @@
 'use strict';
 
-const CACHE = 'cutcalc-cnc-v1.2.0';
+const CACHE = 'cutcalc-cnc-v1.3.0';
 const APP_SHELL = [
   './',
   './index.html',
