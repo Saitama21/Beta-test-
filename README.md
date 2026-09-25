@@ -1,26 +1,19 @@
-# CutCalc CNC
+# CutCalc CNC v2
 
-Offline-first PWA для расчёта расхода круглого прутка на токарные детали.
+Compact offline-first PWA for workshop bar-stock calculations.
 
-## Что считает v1.5
+## v2 redesign
 
-- длину цикла: готовая деталь + торцовки A/B + ширина отрезного реза;
-- общий требуемый метраж без обязательного ввода стандартной длины прутка;
-- количество деталей из одного прутка с учётом первой торцовки и мёртвого хвоста, если длина прутка задана;
-- количество закупаемых прутков;
-- технологические потери;
-- повторно используемый остаток последнего прутка;
-- эффективность использования закупленного материала;
-- локальную историю расчётов.
+- two screens only: Calculation and History;
+- universal material and diameter input with no diameter presets;
+- direct meter calculation requires only part length and quantity;
+- kerf and facing allowances are optional process losses;
+- advanced bar-length mode is collapsed under “Расчёт по пруткам”;
+- local history works without accounts or backend;
+- all interface graphics are local WebP assets;
+- full app shell is precached for offline use;
+- no CDN, remote fonts, APIs, or runtime network dependencies.
 
-## PWA
+## Offline
 
-Приложение не требует backend. Service Worker кеширует оболочку приложения, история хранится локально на устройстве. Все пути относительные, поэтому проект корректно работает из подпути GitHub Pages `/Beta-test-/`.
-
-## Технологии
-
-Чистые HTML/CSS/JavaScript без runtime-зависимостей и UI-фреймворков.
-
-## Универсальный режим
-
-Материал и диаметр не влияют на формулу расхода длины и не имеют скрытых значений по умолчанию. Быстрый расчёт требует только длину детали и количество; рез и торцовки добавляются как технологические потери. Длина прутка необязательна и используется только для раскроя по стандартным пруткам.
+Open the deployed app once while online so the service worker can atomically cache the full app shell. After that, navigation and all bundled assets are served cache-first.

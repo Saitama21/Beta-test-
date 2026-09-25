@@ -1,476 +1,203 @@
 (() => {
   'use strict';
 
-  const STORAGE_KEY = 'cutcalc.history.v2';
-  const THEME_KEY = 'cutcalc.theme.v1';
-  const MAX_HISTORY = 40;
-  const MACHINE = Object.freeze({
-    minChuckGripMm: Math.max(0, Number(window.CUTCALC_MACHINE_CONFIG?.minChuckGripMm) || 46)
-  });
+  const STORAGE_KEY='cutcalc.history.v3';
+  const THEME_KEY='cutcalc.theme.v2';
+  const MAX_HISTORY=60;
+  const MACHINE=Object.freeze({minChuckGripMm:Math.max(0,Number(window.CUTCALC_MACHINE_CONFIG?.minChuckGripMm)||46)});
+  const $=id=>document.getElementById(id);
+  const $$=sel=>Array.from(document.querySelectorAll(sel));
+  const fields=['material','diameter','partLength','quantity','kerf','faceA','faceB','stockLength','stockFace','reservePct'];
+  const numberFields=fields.filter(id=>id!=='material');
+  const ru=new Intl.NumberFormat('ru-RU',{maximumFractionDigits:2});
+  const ru3=new Intl.NumberFormat('ru-RU',{minimumFractionDigits:3,maximumFractionDigits:3});
+  let lastResult=null;
+  let deferredInstallPrompt=null;
+  let toastTimer=0;
 
-  const $ = (id) => document.getElementById(id);
-  const form = $('calcForm');
-  const fields = ['material','diameter','partLength','quantity','kerf','faceA','faceB','stockLength','stockFace','reservePct'];
-  const numberFields = fields.filter((id) => id !== 'material');
-  const requiredCore = ['partLength','quantity'];
-  let deferredInstallPrompt = null;
-  let lastResult = null;
-  let toastTimer = 0;
-
-  const ru = new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 2 });
-  const ru3 = new Intl.NumberFormat('ru-RU', { minimumFractionDigits: 3, maximumFractionDigits: 3 });
-  const clamp = (n, min, max) => Math.min(max, Math.max(min, n));
-  const finite = (value, fallback = 0) => Number.isFinite(Number(value)) ? Number(value) : fallback;
-
-  function on(id, event, handler) {
-    const node = $(id);
-    if (node) node.addEventListener(event, handler);
-  }
-
-  function hasRawValue(id) {
-    const node = $(id);
-    return node ? String(node.value ?? '').trim() !== '' : false;
-  }
-
-  function hasAnyCoreInput() {
-    return requiredCore.some(hasRawValue);
-  }
-
-  function readInput() {
+  function value(id){return $(id)?.value??'';}
+  function readInput(){
     return {
-      material: $('material')?.value.trim() || '',
-      diameter: Math.max(0, finite($('diameter')?.value)),
-      partLength: Math.max(0, finite($('partLength')?.value)),
-      quantity: Math.max(0, Math.floor(finite($('quantity')?.value))),
-      kerf: Math.max(0, finite($('kerf')?.value)),
-      faceA: Math.max(0, finite($('faceA')?.value)),
-      faceB: Math.max(0, finite($('faceB')?.value)),
-      stockLength: Math.max(0, finite($('stockLength')?.value)),
-      stockFace: Math.max(0, finite($('stockFace')?.value)),
-      reservePct: clamp(finite($('reservePct')?.value), 0, 100),
-      minChuckGrip: MACHINE.minChuckGripMm
+      material:value('material'),diameter:value('diameter'),partLength:value('partLength'),quantity:value('quantity'),
+      kerf:value('kerf'),faceA:value('faceA'),faceB:value('faceB'),stockLength:value('stockLength'),
+      stockFace:value('stockFace'),reservePct:value('reservePct'),minChuckGrip:MACHINE.minChuckGripMm
     };
   }
+  function hasCoreInput(){return String(value('partLength')).trim()!==''||String(value('quantity')).trim()!=='';}
+  function plural(n,one,few,many){const n10=n%10,n100=n%100;if(n10===1&&n100!==11)return one;if(n10>=2&&n10<=4&&(n100<12||n100>14))return few;return many;}
+  function isIos(){return /iphone|ipad|ipod/i.test(navigator.userAgent);}
+  function isStandalone(){return matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;}
 
-  function calculate(i) {
-    const errors = [];
-    if (i.partLength <= 0) errors.push('Укажи длину детали.');
-    if (i.quantity <= 0) errors.push('Укажи количество деталей.');
-
-    const cycleLength = i.partLength + i.faceA + i.faceB + i.kerf;
-    const targetQuantity = i.quantity > 0 ? Math.ceil(i.quantity * (1 + i.reservePct / 100)) : 0;
-    const perPartProcessLoss = i.faceA + i.faceB + i.kerf;
-    const directRequiredLength = targetQuantity * cycleLength;
-
-    if (errors.length) {
-      return { valid: false, errors, input: i, cycleLength, targetQuantity, partsPerBar: 0 };
-    }
-
-    // Fast universal mode: no standard bar length is required.
-    // Material name and diameter describe the job but never change the length formula.
-    if (i.stockLength <= 0) {
-      return {
-        valid: true,
-        mode: 'direct',
-        input: i,
-        cycleLength,
-        targetQuantity,
-        purchaseLength: directRequiredLength,
-        netProductLength: targetQuantity * i.partLength,
-        processLoss: targetQuantity * perPartProcessLoss,
-        efficiency: cycleLength > 0 ? (i.partLength / cycleLength) * 100 : 0,
-        partsPerBar: 0,
-        bars: 0,
-        partsLastBar: 0,
-        fullBarGripTail: 0,
-        unavoidableScrap: 0,
-        reusableRemainder: 0,
-        materialUsedForBatch: directRequiredLength,
-        accountingDelta: 0
-      };
-    }
-
-    const usableForCycles = Math.max(0, i.stockLength - i.stockFace - i.minChuckGrip);
-    const partsPerBar = cycleLength > 0 ? Math.floor(usableForCycles / cycleLength) : 0;
-
-    if (i.stockFace + i.minChuckGrip >= i.stockLength) {
-      errors.push(`После первой торцовки должен оставаться зажим не меньше ${ru.format(i.minChuckGrip)} мм.`);
-    }
-    if (partsPerBar < 1 && !errors.length) {
-      errors.push(`Из такого прутка нельзя получить деталь, сохранив минимум ${ru.format(i.minChuckGrip)} мм в кулачках.`);
-    }
-
-    if (errors.length) return { valid: false, errors, input: i, cycleLength, targetQuantity, partsPerBar };
-
-    const bars = Math.ceil(targetQuantity / partsPerBar);
-    const fullBarsBeforeLast = Math.max(0, bars - 1);
-    const partsLastBar = targetQuantity - fullBarsBeforeLast * partsPerBar;
-    const purchaseLength = bars * i.stockLength;
-    const netProductLength = targetQuantity * i.partLength;
-    const processLoss = targetQuantity * perPartProcessLoss + bars * i.stockFace;
-
-    // Actual physical tail after the maximum possible number of parts from one bar.
-    // It is always >= minChuckGrip by construction.
-    const fullBarGripTail = i.stockLength - i.stockFace - partsPerBar * cycleLength;
-    const scrapFromFullBars = fullBarsBeforeLast * fullBarGripTail;
-
-    const lastRawRemainder = i.stockLength - i.stockFace - partsLastBar * cycleLength;
-    const lastIsExhausted = partsLastBar === partsPerBar;
-    const reusableRemainder = lastIsExhausted ? 0 : Math.max(0, lastRawRemainder);
-    const lastGripTail = lastIsExhausted ? Math.max(0, lastRawRemainder) : 0;
-    const unavoidableScrap = scrapFromFullBars + lastGripTail;
-
-    const accounted = netProductLength + processLoss + unavoidableScrap + reusableRemainder;
-    const accountingDelta = purchaseLength - accounted;
-    const efficiency = purchaseLength > 0 ? (netProductLength / purchaseLength) * 100 : 0;
-    const materialUsedForBatch = purchaseLength - reusableRemainder;
-
-    return {
-      valid: true,
-      input: i,
-      cycleLength,
-      targetQuantity,
-      partsPerBar,
-      bars,
-      partsLastBar,
-      purchaseLength,
-      netProductLength,
-      processLoss,
-      fullBarGripTail,
-      unavoidableScrap,
-      reusableRemainder,
-      materialUsedForBatch,
-      efficiency,
-      accountingDelta
-    };
+  function setTheme(theme){
+    const safe=theme==='dark'?'dark':'light';
+    document.documentElement.dataset.theme=safe;
+    try{localStorage.setItem(THEME_KEY,safe);}catch{}
+    const meta=document.querySelector('meta[name="theme-color"]');
+    if(meta)meta.content=safe==='dark'?'#0a0d11':'#f4f6f8';
+    const btn=$('themeToggle');
+    if(btn)btn.querySelector('span').textContent=safe==='dark'?'☾':'☼';
   }
-
-  function renderMachineRule() {
-    const node = $('minGripValue');
-    if (node) node.textContent = `${ru.format(MACHINE.minChuckGripMm)} мм`;
+  function initTheme(){
+    let saved='light';
+    try{saved=localStorage.getItem(THEME_KEY)||document.documentElement.dataset.theme||'light';}catch{}
+    setTheme(saved);
   }
+  function toggleTheme(){setTheme(document.documentElement.dataset.theme==='dark'?'light':'dark');}
 
-  function renderNeutral() {
-    lastResult = null;
-    $('resultLabel').textContent = 'Расчёт не выполнен';
-    $('purchaseMeters').textContent = '—';
-    $('purchaseHint').textContent = 'Заполни длину детали и количество';
-    $('cycleLength').textContent = '—';
-    $('partsPerBar').textContent = '—';
-    $('techLoss').textContent = '—';
-    $('gripTail').textContent = '—';
-    $('efficiencyValue').textContent = '—';
-    $('efficiencyRing').style.setProperty('--p', 0);
-    $('barViz').replaceChildren();
-    $('barBlock').hidden = true;
-    $('lastBarText').textContent = '—';
-    $('warning').hidden = true;
-    $('saveBtn').disabled = true;
-  }
-
-  function renderInvalid(r) {
-    lastResult = r;
-    $('resultLabel').textContent = 'Нужны исходные данные';
-    $('purchaseMeters').textContent = '—';
-    $('purchaseHint').textContent = 'Заполни обязательные поля';
-    $('cycleLength').textContent = r.cycleLength > 0 ? `${ru.format(r.cycleLength)} мм` : '—';
-    $('partsPerBar').textContent = '—';
-    $('techLoss').textContent = '—';
-    $('gripTail').textContent = '—';
-    $('efficiencyValue').textContent = '—';
-    $('efficiencyRing').style.setProperty('--p', 0);
-    $('barViz').replaceChildren();
-    $('barBlock').hidden = true;
-    $('lastBarText').textContent = '—';
-    $('warning').hidden = false;
-    $('warning').textContent = r.errors.join(' ');
-    $('saveBtn').disabled = true;
-  }
-
-  function render() {
-    if (!hasAnyCoreInput()) {
-      renderNeutral();
-      return;
-    }
-
-    const r = calculate(readInput());
-    if (!r.valid) {
-      renderInvalid(r);
-      return;
-    }
-
-    lastResult = r;
-    const warning = $('warning');
-    warning.hidden = true;
-    $('saveBtn').disabled = false;
-    $('purchaseMeters').textContent = ru3.format(r.purchaseLength / 1000);
-    $('cycleLength').textContent = `${ru.format(r.cycleLength)} мм`;
-    $('techLoss').textContent = `${ru.format(r.processLoss)} мм`;
-    $('efficiencyValue').textContent = `${Math.round(r.efficiency)}%`;
-    $('efficiencyRing').style.setProperty('--p', clamp(r.efficiency, 0, 100).toFixed(1));
-
-    if (r.mode === 'direct') {
-      $('resultLabel').textContent = 'Нужно материала';
-      $('purchaseHint').textContent = `${r.targetQuantity} шт × ${ru.format(r.cycleLength)} мм${r.input.reservePct > 0 ? ' · с запасом' : ''}`;
-      $('partsPerBar').textContent = '—';
-      $('gripTail').textContent = '—';
-      $('lastBarText').textContent = 'Укажи длину прутка для раскроя по пруткам';
-      $('barViz').replaceChildren();
-      $('barBlock').hidden = true;
-      return;
-    }
-
-    $('resultLabel').textContent = 'Купить материала';
-    $('purchaseHint').textContent = `${r.bars} ${plural(r.bars, 'пруток', 'прутка', 'прутков')} × ${ru3.format(r.input.stockLength / 1000)} м · ${r.targetQuantity} шт${r.input.reservePct > 0 ? ' с запасом' : ''}`;
-    $('partsPerBar').textContent = `${r.partsPerBar} шт`;
-    $('gripTail').textContent = `${ru.format(r.fullBarGripTail)} мм`;
-
-    const remainderLabel = r.reusableRemainder > 0 ? ` · остаток ${ru.format(r.reusableRemainder)} мм` : ` · хвост ${ru.format(r.fullBarGripTail)} мм`;
-    $('lastBarText').textContent = `${r.partsLastBar} ${plural(r.partsLastBar, 'деталь', 'детали', 'деталей')}${remainderLabel}`;
-    $('barBlock').hidden = false;
-
-    const productOnLast = r.partsLastBar * r.input.partLength;
-    const processOnLast = r.partsLastBar * (r.input.faceA + r.input.faceB + r.input.kerf) + r.input.stockFace;
-    const leftoverOnLast = Math.max(0, r.input.stockLength - productOnLast - processOnLast);
-    const total = Math.max(1, r.input.stockLength);
-    const pct = (v) => `${clamp(v / total * 100, 0, 100).toFixed(3)}%`;
-    $('barViz').innerHTML = `<span class="bar-product" style="width:${pct(productOnLast)}"></span><span class="bar-process" style="width:${pct(processOnLast)}"></span><span class="bar-left" style="width:${pct(leftoverOnLast)}"></span>`;
-    $('barViz').setAttribute('aria-label', `Последний пруток: ${r.partsLastBar} деталей, технологические потери ${ru.format(processOnLast)} мм, остаток ${ru.format(leftoverOnLast)} мм. Минимальный зажим ${ru.format(r.input.minChuckGrip)} мм.`);
-
-    if (r.fullBarGripTail + 1e-9 < r.input.minChuckGrip) {
-      warning.hidden = false;
-      warning.textContent = `Ошибка безопасности: фактический хвост меньше минимального зажима ${ru.format(r.input.minChuckGrip)} мм.`;
-      $('saveBtn').disabled = true;
-      return;
-    }
-
-    if (Math.abs(r.accountingDelta) > 0.01) {
-      warning.hidden = false;
-      warning.textContent = 'Внутренняя проверка баланса длины не сошлась. Не используй результат и сообщи об ошибке.';
-      $('saveBtn').disabled = true;
-    }
-  }
-
-  function plural(n, one, few, many) {
-    const n10 = n % 10, n100 = n % 100;
-    if (n10 === 1 && n100 !== 11) return one;
-    if (n10 >= 2 && n10 <= 4 && (n100 < 12 || n100 > 14)) return few;
-    return many;
-  }
-
-  function showToast(message) {
+  function showToast(message){
     clearTimeout(toastTimer);
-    const node = $('toast');
-    if (!node) return;
-    node.textContent = message;
+    const node=$('toast');
+    if(!node)return;
+    node.textContent=message;
     node.classList.add('show');
-    toastTimer = window.setTimeout(() => node.classList.remove('show'), 1800);
+    toastTimer=setTimeout(()=>node.classList.remove('show'),1800);
   }
 
-  function getHistory() {
-    try {
-      const raw = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-      return Array.isArray(raw) ? raw : [];
-    } catch (_) { return []; }
+  function renderNeutral(){
+    lastResult=null;
+    $('purchaseMeters').textContent='—';
+    $('purchaseHint').textContent='Заполни длину детали и количество';
+    $('cycleLength').textContent='—';
+    $('netLength').textContent='—';
+    $('techLoss').textContent='—';
+    $('partsPerBar').textContent='—';
+    $('barsCount').textContent='—';
+    $('gripTail').textContent='—';
+    $('remainderValue').textContent='—';
+    $('warning').hidden=true;
+    $('saveBtn').disabled=true;
   }
 
-  function setHistory(items) {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(items.slice(0, MAX_HISTORY))); }
-    catch (_) { showToast('Не удалось сохранить локально'); }
+  function renderInvalid(r){
+    lastResult=r;
+    $('purchaseMeters').textContent='—';
+    $('purchaseHint').textContent='Нужны исходные данные';
+    $('cycleLength').textContent=r.cycleLength>0?`${ru.format(r.cycleLength)} мм`:'—';
+    $('netLength').textContent=r.input?.partLength>0?`${ru.format(r.input.partLength)} мм`:'—';
+    $('techLoss').textContent='—';
+    $('partsPerBar').textContent='—';
+    $('barsCount').textContent='—';
+    $('gripTail').textContent='—';
+    $('remainderValue').textContent='—';
+    $('warning').hidden=false;
+    $('warning').textContent=r.errors.join(' ');
+    $('saveBtn').disabled=true;
   }
 
-  function saveCurrent() {
-    if (!lastResult?.valid || $('saveBtn')?.disabled) return;
-    const item = {
-      id: `${Date.now()}-${Math.random().toString(16).slice(2,8)}`,
-      createdAt: new Date().toISOString(),
-      input: lastResult.input,
-      summary: {
-        bars: lastResult.bars,
-        purchaseLength: lastResult.purchaseLength,
-        targetQuantity: lastResult.targetQuantity,
-        reusableRemainder: lastResult.reusableRemainder,
-        fullBarGripTail: lastResult.fullBarGripTail
-      }
+  function render(){
+    if(!hasCoreInput()){renderNeutral();return;}
+    const r=window.CutCalcCore.calculate(readInput());
+    if(!r.valid){renderInvalid(r);return;}
+
+    lastResult=r;
+    $('warning').hidden=true;
+    $('saveBtn').disabled=false;
+    $('purchaseMeters').textContent=ru3.format(r.purchaseLength/1000);
+    $('cycleLength').textContent=`${ru.format(r.cycleLength)} мм`;
+    $('netLength').textContent=`${ru.format(r.input.partLength)} мм`;
+    $('techLoss').textContent=`${ru.format(r.processLoss)} мм`;
+
+    if(r.mode==='direct'){
+      $('purchaseHint').textContent=`${r.targetQuantity} шт × ${ru.format(r.cycleLength)} мм${r.input.reservePct>0?' · с запасом':''}`;
+      $('partsPerBar').textContent='—';
+      $('barsCount').textContent='—';
+      $('gripTail').textContent='—';
+      $('remainderValue').textContent='—';
+      return;
+    }
+
+    $('purchaseHint').textContent=`${r.bars} ${plural(r.bars,'пруток','прутка','прутков')} × ${ru3.format(r.input.stockLength/1000)} м · ${r.targetQuantity} шт`;
+    $('partsPerBar').textContent=`${r.partsPerBar} шт`;
+    $('barsCount').textContent=String(r.bars);
+    $('gripTail').textContent=`${ru.format(r.fullBarGripTail)} мм`;
+    $('remainderValue').textContent=r.reusableRemainder>0?`${ru.format(r.reusableRemainder)} мм`:'—';
+  }
+
+  function getHistory(){
+    try{const data=JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');return Array.isArray(data)?data:[];}catch{return [];}
+  }
+  function setHistory(items){
+    try{localStorage.setItem(STORAGE_KEY,JSON.stringify(items.slice(0,MAX_HISTORY)));}catch{showToast('Не удалось сохранить локально');}
+  }
+  function saveCurrent(){
+    if(!lastResult?.valid)return;
+    const item={
+      id:`${Date.now()}-${Math.random().toString(16).slice(2,8)}`,
+      createdAt:new Date().toISOString(),
+      input:lastResult.input,
+      result:{purchaseLength:lastResult.purchaseLength,cycleLength:lastResult.cycleLength,targetQuantity:lastResult.targetQuantity}
     };
-    const history = getHistory();
-    history.unshift(item);
-    setHistory(history);
-    renderHistory();
-    showToast('Расчёт сохранён');
+    const history=getHistory();history.unshift(item);setHistory(history);renderHistory();showToast('Расчёт сохранён');
   }
-
-  function formatDate(iso) {
-    const d = new Date(iso);
-    return Number.isNaN(d.valueOf()) ? '' : new Intl.DateTimeFormat('ru-RU',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}).format(d);
+  function formatDate(iso){
+    const d=new Date(iso);if(Number.isNaN(d.valueOf()))return '';
+    const now=new Date();const same=now.toDateString()===d.toDateString();
+    return same?`Сегодня, ${new Intl.DateTimeFormat('ru-RU',{hour:'2-digit',minute:'2-digit'}).format(d)}`:new Intl.DateTimeFormat('ru-RU',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}).format(d);
   }
-
-  function renderHistory() {
-    const items = getHistory();
-    const list = $('historyList');
-    if (!list) return;
-    list.replaceChildren();
-    $('historyEmpty').hidden = items.length > 0;
-    $('clearHistory').hidden = items.length === 0;
-
-    for (const item of items) {
-      const card = document.createElement('article');
-      card.className = 'history-card';
-      const left = document.createElement('div');
-      const title = document.createElement('h3');
-      const mat = item.input.material || 'Без названия';
-      const dia = item.input.diameter > 0 ? ` · Ø${ru.format(item.input.diameter)}` : '';
-      title.textContent = `${mat}${dia}`;
-      const meta = document.createElement('p');
-      meta.textContent = `${item.input.quantity} шт × ${ru.format(item.input.partLength)} мм · ${formatDate(item.createdAt)}`;
-      left.append(title, meta);
-
-      const result = document.createElement('div');
-      result.className = 'history-result';
-      const strong = document.createElement('strong');
-      strong.textContent = `${ru3.format(item.summary.purchaseLength / 1000)} м`;
-      const small = document.createElement('span');
-      small.textContent = `${item.summary.bars} ${plural(item.summary.bars,'пруток','прутка','прутков')}`;
-      result.append(strong, small);
-
-      const actions = document.createElement('div');
-      actions.className = 'history-actions';
-      const load = document.createElement('button');
-      load.type = 'button';
-      load.textContent = 'Открыть';
-      load.addEventListener('click', () => { applyInput(item.input); switchScreen('calc'); showToast('Расчёт загружен'); });
-      const del = document.createElement('button');
-      del.type = 'button';
-      del.textContent = 'Удалить';
-      del.className = 'delete';
-      del.addEventListener('click', () => { setHistory(getHistory().filter(x => x.id !== item.id)); renderHistory(); });
-      actions.append(load, del);
-      card.append(left, result, actions);
+  function materialThumb(material){return /латун|brass|cuzn/i.test(material)?'./assets/rod-brass.webp':'./assets/rod-steel.webp';}
+  function renderHistory(){
+    const list=$('historyList');const items=getHistory();
+    list.replaceChildren();$('historyEmpty').hidden=items.length>0;$('clearHistory').hidden=items.length===0;
+    for(const item of items){
+      const card=document.createElement('button');card.type='button';card.className='history-card';
+      const material=item.input.material||'Материал';
+      const dia=item.input.diameter>0?`Ø ${ru.format(item.input.diameter)} мм`:'Ø —';
+      card.innerHTML=`
+        <img class="history-thumb" src="${materialThumb(material)}" alt="" width="58" height="48">
+        <span class="history-main"><strong>${escapeHtml(material)}</strong><small>${escapeHtml(dia)}</small><small>L ${ru.format(item.input.partLength)} мм&nbsp;&nbsp;•&nbsp;&nbsp;${item.input.quantity} шт</small></span>
+        <span class="history-result"><small>${formatDate(item.createdAt)}</small><strong>${ru3.format(item.result.purchaseLength/1000)} м</strong></span>
+        <span class="history-arrow">›</span>`;
+      card.addEventListener('click',()=>{applyInput(item.input);switchScreen('calc');showToast('Расчёт загружен');});
       list.append(card);
     }
   }
+  function escapeHtml(value){return String(value).replace(/[&<>'"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));}
 
-  function applyInput(data) {
-    for (const id of fields) {
-      const node = $(id);
-      if (node && Object.prototype.hasOwnProperty.call(data, id)) node.value = data[id] ?? '';
-    }
-    render();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+  function applyInput(data){for(const id of fields){const node=$(id);if(node)node.value=data[id]??'';}render();window.scrollTo({top:0,behavior:'smooth'});}
+  function clearCalculator(){for(const id of fields){const node=$(id);if(node)node.value='';}renderNeutral();$('barDetails').open=false;showToast('Поля очищены');}
+  function switchScreen(name){
+    $$('.screen').forEach(node=>node.classList.toggle('is-active',node.dataset.screen===name));
+    $$('.dock-item').forEach(node=>node.classList.toggle('is-active',node.dataset.target===name));
+    if(name==='history')renderHistory();
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+  function updateOfflineState(){
+    const node=$('offlineState');if(!node)return;
+    const label=node.querySelector('b');
+    if(navigator.onLine){node.classList.remove('is-offline');label.textContent='Готов к работе';}
+    else{node.classList.add('is-offline');label.textContent='Офлайн';}
   }
 
-  function clearCalculator() {
-    for (const id of fields) {
-      const node = $(id);
-      if (node) node.value = '';
-    }
-    renderNeutral();
-    $('material')?.focus({ preventScroll: true });
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    showToast('Поля очищены');
+  function setupInstall(){
+    window.addEventListener('beforeinstallprompt',event=>{event.preventDefault();deferredInstallPrompt=event;});
+    window.addEventListener('appinstalled',()=>{deferredInstallPrompt=null;showToast('CutCalc установлен');});
+  }
+  async function requestInstall(){
+    if(isStandalone()){showToast('Приложение уже установлено');return;}
+    if(deferredInstallPrompt){deferredInstallPrompt.prompt();try{await deferredInstallPrompt.userChoice;}catch{}deferredInstallPrompt=null;return;}
+    if(isIos())$('iosHint').hidden=false;else showToast('Установка доступна из меню браузера');
+  }
+  async function requestPersistentStorage(){try{if(navigator.storage?.persist)await navigator.storage.persist();}catch{}}
+
+  function init(){
+    initTheme();
+    requestPersistentStorage();
+    $('minGripValue').textContent=`${ru.format(MACHINE.minChuckGripMm)} мм`;
+    numberFields.forEach(id=>{$(id)?.addEventListener('input',render);$(id)?.addEventListener('change',render);});
+    $('material')?.addEventListener('input',render);
+    $('calcForm')?.addEventListener('submit',event=>event.preventDefault());
+    $('themeToggle')?.addEventListener('click',toggleTheme);
+    $('installBtn')?.addEventListener('click',requestInstall);
+    $('clearAll')?.addEventListener('click',clearCalculator);
+    $('saveBtn')?.addEventListener('click',saveCurrent);
+    $('clearHistory')?.addEventListener('click',()=>{if(getHistory().length&&confirm('Удалить всю историю расчётов на этом устройстве?')){setHistory([]);renderHistory();showToast('История очищена');}});
+    $$('.dock-item').forEach(btn=>btn.addEventListener('click',()=>switchScreen(btn.dataset.target)));
+    $('closeIosHint')?.addEventListener('click',()=>{$('iosHint').hidden=true;});
+    $('iosHint')?.addEventListener('click',e=>{if(e.target===$('iosHint'))$('iosHint').hidden=true;});
+    window.addEventListener('online',updateOfflineState,{passive:true});
+    window.addEventListener('offline',updateOfflineState,{passive:true});
+    renderNeutral();renderHistory();updateOfflineState();setupInstall();
   }
 
-  function switchScreen(name) {
-    document.querySelectorAll('.screen').forEach(x => x.classList.toggle('active', x.dataset.screen === name));
-    document.querySelectorAll('.nav-btn').forEach(x => x.classList.toggle('active', x.dataset.target === name));
-    if (name === 'history') renderHistory();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-
-  function initTheme() {
-    const saved = localStorage.getItem(THEME_KEY);
-    const preferred = saved || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
-    document.documentElement.dataset.theme = preferred;
-  }
-
-  function toggleTheme() {
-    const next = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
-    document.documentElement.dataset.theme = next;
-    localStorage.setItem(THEME_KEY, next);
-  }
-
-  function updateNetworkStatus() {
-    const node = $('networkStatus');
-    if (!node) return;
-    node.textContent = navigator.onLine ? 'Онлайн · офлайн-кэш готов' : 'Офлайн режим';
-  }
-
-  function isIos() { return /iphone|ipad|ipod/i.test(navigator.userAgent); }
-  function isStandalone() { return matchMedia('(display-mode: standalone)').matches || navigator.standalone === true; }
-
-  function setupInstall() {
-    if (isStandalone()) return;
-    if (isIos() && $('installBtn')) $('installBtn').hidden = false;
-    window.addEventListener('beforeinstallprompt', (event) => {
-      event.preventDefault();
-      deferredInstallPrompt = event;
-      if ($('installBtn')) $('installBtn').hidden = false;
-    });
-    window.addEventListener('appinstalled', () => {
-      deferredInstallPrompt = null;
-      if ($('installBtn')) $('installBtn').hidden = true;
-      showToast('CutCalc установлен');
-    });
-  }
-
-  async function requestInstall() {
-    if (deferredInstallPrompt) {
-      deferredInstallPrompt.prompt();
-      try { await deferredInstallPrompt.userChoice; } catch (_) {}
-      deferredInstallPrompt = null;
-      return;
-    }
-    if (isIos() && $('iosHint')) $('iosHint').hidden = false;
-    else showToast('Установка доступна из меню браузера');
-  }
-
-  async function registerServiceWorker() {
-    if (!('serviceWorker' in navigator)) return;
-    try { await navigator.serviceWorker.register('./sw.js', { scope: './' }); }
-    catch (error) { console.error('Service worker registration failed', error); }
-  }
-
-  initTheme();
-  renderMachineRule();
-  numberFields.forEach((id) => {
-    const node = $(id);
-    if (!node) return;
-    node.addEventListener('input', render);
-    node.addEventListener('change', render);
-  });
-  on('material', 'input', render);
-  form?.addEventListener('submit', (e) => e.preventDefault());
-  on('clearAll', 'click', clearCalculator);
-  on('resetLosses', 'click', () => {
-    ['kerf','faceA','faceB'].forEach((id) => { if ($(id)) $(id).value = ''; });
-    render();
-  });
-  on('saveBtn', 'click', saveCurrent);
-  on('clearHistory', 'click', () => {
-    if (getHistory().length && confirm('Удалить всю историю расчётов на этом устройстве?')) {
-      setHistory([]);
-      renderHistory();
-      showToast('История очищена');
-    }
-  });
-  on('themeToggle', 'click', toggleTheme);
-  on('installBtn', 'click', requestInstall);
-  on('closeIosHint', 'click', () => { if ($('iosHint')) $('iosHint').hidden = true; });
-  on('iosHint', 'click', (e) => { if (e.target === $('iosHint')) $('iosHint').hidden = true; });
-
-  document.querySelectorAll('.nav-btn').forEach(btn => btn.addEventListener('click', () => switchScreen(btn.dataset.target)));
-  document.querySelectorAll('.material-card').forEach(btn => btn.addEventListener('click', () => {
-    if ($('material')) $('material').value = btn.dataset.material || '';
-    render();
-    switchScreen('calc');
-    showToast('Материал выбран');
-  }));
-  window.addEventListener('online', updateNetworkStatus);
-  window.addEventListener('offline', updateNetworkStatus);
-
-  renderNeutral();
-  renderHistory();
-  updateNetworkStatus();
-  setupInstall();
-  registerServiceWorker();
+  init();
 })();

@@ -1,0 +1,25 @@
+import fs from 'node:fs';
+const html=fs.readFileSync('index.html','utf8');
+const css=fs.readFileSync('styles.css','utf8');
+const sw=fs.readFileSync('sw.js','utf8');
+const app=fs.readFileSync('app.js','utf8');
+const assert=(c,m)=>{if(!c){console.error('UI/OFFLINE TEST FAILED:',m);process.exit(1);}};
+
+assert(!html.includes('screen-materials'),'materials screen must be removed');
+assert((html.match(/class="dock-item/g)||[]).length===2,'dock must have exactly two items');
+assert(/\.dock\{[^}]*position:fixed/i.test(css),'dock must be fixed');
+assert(/\.dock\{[^}]*left:50%/i.test(css),'dock left must be 50%');
+assert(/\.dock\{[^}]*transform:translateX\(-50%\)/i.test(css),'dock must be centered with translateX(-50%)');
+assert(/\.dock\{[^}]*bottom:2px/i.test(css),'dock bottom must be 2px');
+assert(/\.dock\{[^}]*width:87%/i.test(css),'dock width must be 87%');
+assert(/\.dock\{[^}]*height:68px/i.test(css),'dock height must be 68px');
+assert(!/\.dock\{[^}]*safe-area/i.test(css),'dock must not depend on safe area');
+assert(/\.app-shell\{[^}]*min-height:100dvh/i.test(css),'app shell must use min-height:100dvh');
+assert(css.includes('var(--safe-bottom)'),'safe area must only reserve content space');
+assert(!/https?:\/\//i.test(html+app+css),'runtime UI must not depend on remote resources');
+assert(sw.includes("'./assets/result-rod.webp'"),'result WebP must be precached');
+assert(sw.includes("'./assets/rod-steel.webp'"),'history steel WebP must be precached');
+assert(sw.includes("'./assets/rod-brass.webp'"),'history brass WebP must be precached');
+assert(sw.includes('cache.addAll(APP_SHELL)'),'offline install must cache the full app atomically');
+assert(!sw.includes('networkFirst'),'offline shell must not be network-first');
+console.log('UI and offline contract OK');
