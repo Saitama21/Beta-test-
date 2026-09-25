@@ -21,8 +21,8 @@ assert(css.includes('var(--safe-bottom)'),'safe area must reserve content only')
 
 assert(/\.result-value strong\{[^}]*font-size:58px/i.test(css),'result typography must match the approved reference');
 assert(/\.bar-details summary\{[^}]*height:42px/i.test(css),'bar summary must be compact');
-assert(css.includes('--blue:#42b8ff'),'Liquid Steel v2.7.3 must expose the blue reflection token');
-assert(css.includes('--accent:#ff821d'),'Liquid Steel v2.7.3 must expose the amber token');
+assert(css.includes('--blue:#42b8ff'),'Liquid Steel v2.7.4 must expose the blue reflection token');
+assert(css.includes('--accent:#ff821d'),'Liquid Steel v2.7.4 must expose the amber token');
 assert(css.includes('radial-gradient(ellipse at 73% 2%'),'reference-style background reflections must be present');
 assert(css.includes('linear-gradient(155deg,var(--card-b),var(--card-a)'),'cards must use the darker graphite base');
 assert(!css.includes('!important'),'clean rebuild must not use override patches');
@@ -38,7 +38,7 @@ assert(app.includes("scrollRestoration='manual'"),'Safari scroll restoration mus
 
 assert(!/https?:\/\//i.test(html+css+app),'runtime UI must not depend on remote resources');
 assert(app.includes('saveSnapshot'),'history must persist valid calculations without a save button');
-assert(sw.includes("const VERSION='2.7.3'"),'offline cache must be versioned');
+assert(sw.includes("const VERSION='2.7.4'"),'offline cache must be versioned');
 assert(sw.includes("'./assets/result-rod.webp'"),'result WebP must be precached');
 assert(sw.includes('cache.addAll(APP_SHELL)'),'offline shell must cache atomically');
 assert(!sw.includes('networkFirst'),'offline shell must not be network-first');
