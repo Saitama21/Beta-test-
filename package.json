@@ -1,6 +1,6 @@
 {
   "name": "cutcalc-cnc",
-  "version": "2.7.2",
+  "version": "2.7.3",
   "private": true,
   "scripts": {
     "test": "node tests/calc-core.test.mjs && node tests/ui-offline.test.mjs"

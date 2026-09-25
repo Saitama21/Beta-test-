@@ -1,6 +1,6 @@
 'use strict';
 
-const VERSION='2.7.2';
+const VERSION='2.7.3';
 const CACHE=`cutcalc-cnc-${VERSION}`;
 const APP_SHELL=[
   './','./index.html','./styles.css','./machine-config.js','./calc-core.js','./app.js','./manifest.webmanifest',
