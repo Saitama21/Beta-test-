@@ -2,7 +2,7 @@
   'use strict';
 
   const STORAGE_KEY='cutcalc.history.v3';
-  const THEME_KEY='cutcalc.theme.v3';
+  const THEME_KEY='cutcalc.theme.v4';
   const MAX_HISTORY=60;
   const MACHINE=Object.freeze({minChuckGripMm:Math.max(0,Number(window.CUTCALC_MACHINE_CONFIG?.minChuckGripMm)||46)});
   const $=id=>document.getElementById(id);
@@ -29,7 +29,6 @@
     try{localStorage.setItem(THEME_KEY,mode)}catch{}
     const meta=document.querySelector('meta[name="theme-color"]');
     if(meta)meta.content=mode==='dark'?'#08111a':'#dfe8ef';
-    $('themeToggle')?.querySelector('span')?.replaceChildren(document.createTextNode(mode==='dark'?'☾':'☼'));
   }
 
   function toast(message){
@@ -42,6 +41,7 @@
   function resetResult(){
     lastResult=null;
     $('purchaseMeters').textContent='—';
+    $('purchaseHint').hidden=false;
     $('purchaseHint').textContent='Заполни длину детали и количество';
     $('cycleLength').textContent='—';
     $('netLength').textContent='—';
@@ -56,6 +56,7 @@
   function invalid(r){
     lastResult=r;
     $('purchaseMeters').textContent='—';
+    $('purchaseHint').hidden=false;
     $('purchaseHint').textContent='Нужны исходные данные';
     $('cycleLength').textContent=r.cycleLength>0?`${ru.format(r.cycleLength)} мм`:'—';
     $('netLength').textContent=r.input?.partLength>0?`${ru.format(r.input.partLength)} мм`:'—';
@@ -74,6 +75,7 @@
     if(!r.valid){invalid(r);return}
     lastResult=r;
     $('warning').hidden=true;
+    $('purchaseHint').hidden=true;
     $('purchaseMeters').textContent=ru3.format(r.purchaseLength/1000);
     $('cycleLength').textContent=`${ru.format(r.cycleLength)} мм`;
     $('netLength').textContent=`${ru.format(r.input.partLength)} мм`;
@@ -168,6 +170,9 @@
     window.addEventListener('online',network,{passive:true});window.addEventListener('offline',network,{passive:true});
     window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installPrompt=e});
     try{navigator.storage?.persist?.()}catch{}
+    try{window.history.scrollRestoration='manual'}catch{}
+    requestAnimationFrame(()=>window.scrollTo(0,0));
+    window.addEventListener('pageshow',()=>window.scrollTo(0,0),{passive:true});
     resetResult();renderHistory();network();
   }
 
