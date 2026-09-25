@@ -42,7 +42,7 @@ assert(sw.includes("const VERSION='2.6.1'"),'offline cache must be versioned');
 assert(sw.includes("'./assets/result-rod.webp'"),'result WebP must be precached');
 assert(sw.includes('cache.addAll(APP_SHELL)'),'offline shell must cache atomically');
 assert(!sw.includes('networkFirst'),'offline shell must not be network-first');
-assert(css.includes('background:none;border:0;border-radius:0;box-shadow:none'),'result WebP must render directly without a white tile');
+assert(/\.result-art\{[\s\S]*?background:none;[\s\S]*?border:0;[\s\S]*?border-radius:0;[\s\S]*?box-shadow:none;/i.test(css),'result WebP must render directly without a white tile');
 
 console.log('UI and offline contract OK');
 
