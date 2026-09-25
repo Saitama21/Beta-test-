@@ -20,9 +20,14 @@ assert(css.includes('var(--safe-bottom)'),'safe area must reserve content only')
 assert(/\.result-value strong\{[^}]*font-size:39px/i.test(css),'result typography must match compact concept');
 assert(/\.bar-details summary\{[^}]*height:44px/i.test(css),'bar summary must be compact');
 assert(!css.includes('!important'),'clean rebuild must not use override patches');
+assert(css.includes('--steel-blue:#45b8ff'),'Liquid Steel skin must expose the steel-blue rim-light token');
+assert(css.includes('--accent:#ff851f'),'Liquid Steel skin must expose the amber accent');
+assert(css.includes('radial-gradient(circle at 84% 4%'),'Liquid Steel background lighting must be present');
+assert(html.includes('data-theme="dark"'),'Liquid Steel Pro must boot in dark mode');
+assert(app.includes("cutcalc.theme.v3"),'Liquid Steel theme storage must use the v3 skin key');
 assert(!/https?:\/\//i.test(html+css+app),'runtime UI must not depend on remote resources');
 assert(app.includes('saveSnapshot'),'history must persist valid calculations without a save button');
-assert(sw.includes("const VERSION='2.2.0'"),'offline cache must be versioned');
+assert(sw.includes("const VERSION='2.3.0'"),'offline cache must be versioned');
 assert(sw.includes("'./assets/result-rod.webp'"),'result WebP must be precached');
 assert(sw.includes('cache.addAll(APP_SHELL)'),'offline shell must cache atomically');
 assert(!sw.includes('networkFirst'),'offline shell must not be network-first');

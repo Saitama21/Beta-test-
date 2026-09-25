@@ -2,7 +2,7 @@
   'use strict';
 
   const STORAGE_KEY='cutcalc.history.v3';
-  const THEME_KEY='cutcalc.theme.v2';
+  const THEME_KEY='cutcalc.theme.v3';
   const MAX_HISTORY=60;
   const MACHINE=Object.freeze({minChuckGripMm:Math.max(0,Number(window.CUTCALC_MACHINE_CONFIG?.minChuckGripMm)||46)});
   const $=id=>document.getElementById(id);
@@ -28,7 +28,7 @@
     document.documentElement.dataset.theme=mode;
     try{localStorage.setItem(THEME_KEY,mode)}catch{}
     const meta=document.querySelector('meta[name="theme-color"]');
-    if(meta)meta.content=mode==='dark'?'#0d1014':'#f4f6f8';
+    if(meta)meta.content=mode==='dark'?'#08111a':'#dfe8ef';
     $('themeToggle')?.querySelector('span')?.replaceChildren(document.createTextNode(mode==='dark'?'☾':'☼'));
   }
 
@@ -152,7 +152,7 @@
   }
 
   function init(){
-    let saved='light';try{saved=localStorage.getItem(THEME_KEY)||document.documentElement.dataset.theme||'light'}catch{}
+    let saved='dark';try{saved=localStorage.getItem(THEME_KEY)||document.documentElement.dataset.theme||'dark'}catch{}
     theme(saved);
     $('minGripValue').textContent=`${ru.format(MACHINE.minChuckGripMm)} мм`;
     numeric.forEach(id=>{$(id)?.addEventListener('input',render);$(id)?.addEventListener('change',render)});
