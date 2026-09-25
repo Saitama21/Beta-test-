@@ -156,4 +156,4 @@ html[data-theme="dark"] .dock{background:rgba(24,28,33,.92);border-color:rgba(25
 @media(max-width:380px){
   .content{padding-left:12px;padding-right:12px}.topbar{padding-left:16px;padding-right:16px}.brand h1{font-size:29px}.icon-btn{width:46px;height:46px}.cols-3{gap:6px}.field.mini>span{font-size:10.8px}.result-value strong{font-size:37px}.metrics span{font-size:9.5px}.metrics strong{font-size:13px}
 }
-@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto;transition:none}}
