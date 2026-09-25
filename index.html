@@ -13,8 +13,8 @@
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="apple-touch-icon" href="./icons/icon-180.png">
   <link rel="icon" href="./icons/icon-192.png">
-  <link rel="stylesheet" href="./styles.css?v=1.4.0">
-  <link rel="stylesheet" href="./ui-shell.css?v=1.4.0">
+  <link rel="stylesheet" href="./styles.css?v=1.5.0">
+  <link rel="stylesheet" href="./ui-shell.css?v=1.5.0">
 </head>
 <body>
   <div class="app-shell">
@@ -90,11 +90,11 @@
               <strong id="minGripValue">46 мм</strong>
             </div>
             <div class="field-grid three stock-grid">
-              <label class="field"><span>Длина прутка *</span><div class="input-unit"><input id="stockLength" name="stockLength" type="number" value="" placeholder="—" min="1" step="1" inputmode="decimal" required><b>мм</b></div></label>
+              <label class="field"><span>Длина прутка <small>необязательно</small></span><div class="input-unit"><input id="stockLength" name="stockLength" type="number" value="" placeholder="—" min="1" step="1" inputmode="decimal" required><b>мм</b></div></label>
               <label class="field"><span>Первая торцовка</span><div class="input-unit"><input id="stockFace" name="stockFace" type="number" value="" placeholder="—" min="0" step="0.1" inputmode="decimal"><b>мм</b></div></label>
               <label class="field"><span>Запас деталей</span><div class="input-unit"><input id="reservePct" name="reservePct" type="number" value="" placeholder="—" min="0" max="100" step="0.5" inputmode="decimal"><b>%</b></div></label>
             </div>
-            <p class="required-note">* обязательные поля для расчёта</p>
+            <p class="required-note">* обязательные поля. Длина прутка нужна только для расчёта количества прутков, хвоста и раскроя.</p>
           </section>
         </form>
 
@@ -104,7 +104,7 @@
               <p class="kicker">ИТОГ</p>
               <p id="resultLabel" class="result-label">Расчёт не выполнен</p>
               <div class="hero-number"><strong id="purchaseMeters">—</strong><span>м</span></div>
-              <p id="purchaseHint" class="muted">Заполни длину детали, количество и длину прутка</p>
+              <p id="purchaseHint" class="muted">Заполни длину детали и количество</p>
             </div>
             <div class="efficiency-ring" id="efficiencyRing" style="--p:0"><div><strong id="efficiencyValue">—</strong><span>в детали</span></div></div>
           </div>
@@ -136,12 +136,12 @@
       <section id="screen-materials" class="screen" data-screen="materials">
         <div class="screen-title"><div><p class="eyebrow">БЫСТРЫЕ ПРЕСЕТЫ</p><h2>Материалы</h2></div></div>
         <div class="material-grid" id="materialGrid">
-          <button class="material-card" type="button" data-material="PE 1000 белый" data-diameter="50"><span>PE</span><strong>PE 1000 белый</strong><small>Ø50 · пресет</small></button>
-          <button class="material-card" type="button" data-material="AISI 304" data-diameter="50"><span>304</span><strong>AISI 304</strong><small>Ø50 · пресет</small></button>
-          <button class="material-card" type="button" data-material="Полиамид PA6" data-diameter="60"><span>PA6</span><strong>Полиамид</strong><small>Ø60 · пресет</small></button>
-          <button class="material-card" type="button" data-material="POM-C" data-diameter="50"><span>POM</span><strong>POM-C</strong><small>Ø50 · пресет</small></button>
+          <button class="material-card" type="button" data-material="PE 1000 белый"><span>PE</span><strong>PE 1000 белый</strong><small>любой Ø</small></button>
+          <button class="material-card" type="button" data-material="AISI 304"><span>304</span><strong>AISI 304</strong><small>любой Ø</small></button>
+          <button class="material-card" type="button" data-material="Полиамид PA6"><span>PA6</span><strong>Полиамид</strong><small>любой Ø</small></button>
+          <button class="material-card" type="button" data-material="POM-C"><span>POM</span><strong>POM-C</strong><small>любой Ø</small></button>
         </div>
-        <p class="materials-note">Пресет — только быстрый ввод материала и диаметра. На стартовом экране ничего не подставляется автоматически.</p>
+        <p class="materials-note">Материал выбирается отдельно. Диаметр всегда вводится для конкретной заготовки и никогда не подставляется пресетом.</p>
       </section>
     </main>
 
@@ -162,7 +162,7 @@
     </div>
   </div>
 
-  <script src="./machine-config.js?v=1.4.0" defer></script>
-  <script src="./app.js?v=1.4.0" defer></script>
+  <script src="./machine-config.js?v=1.5.0" defer></script>
+  <script src="./app.js?v=1.5.0" defer></script>
 </body>
 </html>

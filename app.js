@@ -12,7 +12,7 @@
   const form = $('calcForm');
   const fields = ['material','diameter','partLength','quantity','kerf','faceA','faceB','stockLength','stockFace','reservePct'];
   const numberFields = fields.filter((id) => id !== 'material');
-  const requiredCore = ['partLength','quantity','stockLength'];
+  const requiredCore = ['partLength','quantity'];
   let deferredInstallPrompt = null;
   let lastResult = null;
   let toastTimer = 0;
@@ -56,17 +56,47 @@
     const errors = [];
     if (i.partLength <= 0) errors.push('Укажи длину детали.');
     if (i.quantity <= 0) errors.push('Укажи количество деталей.');
-    if (i.stockLength <= 0) errors.push('Укажи длину прутка.');
 
     const cycleLength = i.partLength + i.faceA + i.faceB + i.kerf;
     const targetQuantity = i.quantity > 0 ? Math.ceil(i.quantity * (1 + i.reservePct / 100)) : 0;
+    const perPartProcessLoss = i.faceA + i.faceB + i.kerf;
+    const directRequiredLength = targetQuantity * cycleLength;
+
+    if (errors.length) {
+      return { valid: false, errors, input: i, cycleLength, targetQuantity, partsPerBar: 0 };
+    }
+
+    // Fast universal mode: no standard bar length is required.
+    // Material name and diameter describe the job but never change the length formula.
+    if (i.stockLength <= 0) {
+      return {
+        valid: true,
+        mode: 'direct',
+        input: i,
+        cycleLength,
+        targetQuantity,
+        purchaseLength: directRequiredLength,
+        netProductLength: targetQuantity * i.partLength,
+        processLoss: targetQuantity * perPartProcessLoss,
+        efficiency: cycleLength > 0 ? (i.partLength / cycleLength) * 100 : 0,
+        partsPerBar: 0,
+        bars: 0,
+        partsLastBar: 0,
+        fullBarGripTail: 0,
+        unavoidableScrap: 0,
+        reusableRemainder: 0,
+        materialUsedForBatch: directRequiredLength,
+        accountingDelta: 0
+      };
+    }
+
     const usableForCycles = Math.max(0, i.stockLength - i.stockFace - i.minChuckGrip);
     const partsPerBar = cycleLength > 0 ? Math.floor(usableForCycles / cycleLength) : 0;
 
-    if (i.stockLength > 0 && i.stockFace + i.minChuckGrip >= i.stockLength) {
+    if (i.stockFace + i.minChuckGrip >= i.stockLength) {
       errors.push(`После первой торцовки должен оставаться зажим не меньше ${ru.format(i.minChuckGrip)} мм.`);
     }
-    if (partsPerBar < 1 && i.partLength > 0 && i.stockLength > 0 && !errors.length) {
+    if (partsPerBar < 1 && !errors.length) {
       errors.push(`Из такого прутка нельзя получить деталь, сохранив минимум ${ru.format(i.minChuckGrip)} мм в кулачках.`);
     }
 
@@ -77,7 +107,6 @@
     const partsLastBar = targetQuantity - fullBarsBeforeLast * partsPerBar;
     const purchaseLength = bars * i.stockLength;
     const netProductLength = targetQuantity * i.partLength;
-    const perPartProcessLoss = i.faceA + i.faceB + i.kerf;
     const processLoss = targetQuantity * perPartProcessLoss + bars * i.stockFace;
 
     // Actual physical tail after the maximum possible number of parts from one bar.
@@ -125,7 +154,7 @@
     lastResult = null;
     $('resultLabel').textContent = 'Расчёт не выполнен';
     $('purchaseMeters').textContent = '—';
-    $('purchaseHint').textContent = 'Заполни длину детали, количество и длину прутка';
+    $('purchaseHint').textContent = 'Заполни длину детали и количество';
     $('cycleLength').textContent = '—';
     $('partsPerBar').textContent = '—';
     $('techLoss').textContent = '—';
@@ -174,15 +203,27 @@
     const warning = $('warning');
     warning.hidden = true;
     $('saveBtn').disabled = false;
-    $('resultLabel').textContent = 'Купить материала';
     $('purchaseMeters').textContent = ru3.format(r.purchaseLength / 1000);
-    $('purchaseHint').textContent = `${r.bars} ${plural(r.bars, 'пруток', 'прутка', 'прутков')} × ${ru3.format(r.input.stockLength / 1000)} м · ${r.targetQuantity} шт${r.input.reservePct > 0 ? ' с запасом' : ''}`;
     $('cycleLength').textContent = `${ru.format(r.cycleLength)} мм`;
-    $('partsPerBar').textContent = `${r.partsPerBar} шт`;
     $('techLoss').textContent = `${ru.format(r.processLoss)} мм`;
-    $('gripTail').textContent = `${ru.format(r.fullBarGripTail)} мм`;
     $('efficiencyValue').textContent = `${Math.round(r.efficiency)}%`;
     $('efficiencyRing').style.setProperty('--p', clamp(r.efficiency, 0, 100).toFixed(1));
+
+    if (r.mode === 'direct') {
+      $('resultLabel').textContent = 'Нужно материала';
+      $('purchaseHint').textContent = `${r.targetQuantity} шт × ${ru.format(r.cycleLength)} мм${r.input.reservePct > 0 ? ' · с запасом' : ''}`;
+      $('partsPerBar').textContent = '—';
+      $('gripTail').textContent = '—';
+      $('lastBarText').textContent = 'Укажи длину прутка для раскроя по пруткам';
+      $('barViz').replaceChildren();
+      $('barBlock').hidden = true;
+      return;
+    }
+
+    $('resultLabel').textContent = 'Купить материала';
+    $('purchaseHint').textContent = `${r.bars} ${plural(r.bars, 'пруток', 'прутка', 'прутков')} × ${ru3.format(r.input.stockLength / 1000)} м · ${r.targetQuantity} шт${r.input.reservePct > 0 ? ' с запасом' : ''}`;
+    $('partsPerBar').textContent = `${r.partsPerBar} шт`;
+    $('gripTail').textContent = `${ru.format(r.fullBarGripTail)} мм`;
 
     const remainderLabel = r.reusableRemainder > 0 ? ` · остаток ${ru.format(r.reusableRemainder)} мм` : ` · хвост ${ru.format(r.fullBarGripTail)} мм`;
     $('lastBarText').textContent = `${r.partsLastBar} ${plural(r.partsLastBar, 'деталь', 'детали', 'деталей')}${remainderLabel}`;
@@ -420,10 +461,9 @@
   document.querySelectorAll('.nav-btn').forEach(btn => btn.addEventListener('click', () => switchScreen(btn.dataset.target)));
   document.querySelectorAll('.material-card').forEach(btn => btn.addEventListener('click', () => {
     if ($('material')) $('material').value = btn.dataset.material || '';
-    if ($('diameter')) $('diameter').value = btn.dataset.diameter || '';
     render();
     switchScreen('calc');
-    showToast('Пресет применён');
+    showToast('Материал выбран');
   }));
   window.addEventListener('online', updateNetworkStatus);
   window.addEventListener('offline', updateNetworkStatus);

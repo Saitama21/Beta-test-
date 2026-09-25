@@ -1,13 +1,13 @@
 'use strict';
 
-const CACHE = 'cutcalc-cnc-v1.4.0';
+const CACHE = 'cutcalc-cnc-v1.5.0';
 const APP_SHELL = [
   './',
   './index.html',
-  './styles.css?v=1.4.0',
-  './ui-shell.css?v=1.4.0',
-  './machine-config.js?v=1.4.0',
-  './app.js?v=1.4.0',
+  './styles.css?v=1.5.0',
+  './ui-shell.css?v=1.5.0',
+  './machine-config.js?v=1.5.0',
+  './app.js?v=1.5.0',
   './manifest.webmanifest',
   './icons/icon-180.png',
   './icons/icon-192.png',
