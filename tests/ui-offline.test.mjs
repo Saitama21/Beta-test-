@@ -22,7 +22,7 @@ assert(css.includes('var(--safe-bottom)'),'safe area must reserve content only')
 assert(/\.result-value strong\{[^}]*font-size:40px/i.test(css),'result typography must match the approved reference');
 assert(/\.bar-details summary\{[^}]*height:42px/i.test(css),'bar summary must be compact');
 assert(css.includes('--blue:#42b8ff'),'Liquid Steel v2.6 must expose the blue reflection token');
-assert(css.includes('--accent:#ff821d'),'Liquid Steel v2.5 must expose the amber token');
+assert(css.includes('--accent:#ff821d'),'Liquid Steel v2.5.1 must expose the amber token');
 assert(css.includes('radial-gradient(ellipse at 73% 2%'),'reference-style background reflections must be present');
 assert(css.includes('linear-gradient(155deg,var(--card-b),var(--card-a)'),'cards must use the darker graphite base');
 assert(!css.includes('!important'),'clean rebuild must not use override patches');
