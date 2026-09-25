@@ -7,6 +7,10 @@ const assert=(c,m)=>{if(!c){console.error('UI/OFFLINE TEST FAILED:',m);process.e
 
 assert(!html.includes('screen-materials'),'materials screen must be removed');
 assert((html.match(/class="dock-item/g)||[]).length===2,'dock must have exactly two items');
+assert(!html.includes('id="saveBtn"'),'main concept must not contain a save button');
+assert(html.includes('dock-icon-calc')&&html.includes('dock-icon-history'),'dock must use the compact concept icons');
+assert(app.includes("persistCurrentSnapshot"),'history must persist the current valid calculation automatically');
+assert(app.includes("setAttribute('data-view',name)"),'screen switching must update the compact view shell');
 assert(/\.dock\{[^}]*position:fixed/i.test(css),'dock must be fixed');
 assert(/\.dock\{[^}]*left:50%/i.test(css),'dock left must be 50%');
 assert(/\.dock\{[^}]*transform:translateX\(-50%\)/i.test(css),'dock must be centered with translateX(-50%)');

@@ -65,7 +65,6 @@
     $('gripTail').textContent='—';
     $('remainderValue').textContent='—';
     $('warning').hidden=true;
-    $('saveBtn').disabled=true;
   }
 
   function renderInvalid(r){
@@ -81,7 +80,6 @@
     $('remainderValue').textContent='—';
     $('warning').hidden=false;
     $('warning').textContent=r.errors.join(' ');
-    $('saveBtn').disabled=true;
   }
 
   function render(){
@@ -91,7 +89,6 @@
 
     lastResult=r;
     $('warning').hidden=true;
-    $('saveBtn').disabled=false;
     $('purchaseMeters').textContent=ru3.format(r.purchaseLength/1000);
     $('cycleLength').textContent=`${ru.format(r.cycleLength)} мм`;
     $('netLength').textContent=`${ru.format(r.input.partLength)} мм`;
@@ -119,15 +116,34 @@
   function setHistory(items){
     try{localStorage.setItem(STORAGE_KEY,JSON.stringify(items.slice(0,MAX_HISTORY)));}catch{showToast('Не удалось сохранить локально');}
   }
-  function saveCurrent(){
+  function historySignature(input,result){
+    return JSON.stringify({
+      material:input.material||'',
+      diameter:Number(input.diameter)||0,
+      partLength:Number(input.partLength)||0,
+      quantity:Number(input.quantity)||0,
+      kerf:Number(input.kerf)||0,
+      faceA:Number(input.faceA)||0,
+      faceB:Number(input.faceB)||0,
+      stockLength:Number(input.stockLength)||0,
+      stockFace:Number(input.stockFace)||0,
+      reservePct:Number(input.reservePct)||0,
+      purchaseLength:Number(result.purchaseLength)||0
+    });
+  }
+  function persistCurrentSnapshot(){
     if(!lastResult?.valid)return;
-    const item={
+    const signature=historySignature(lastResult.input,lastResult);
+    const history=getHistory();
+    if(history.some(item=>item.signature===signature))return;
+    history.unshift({
       id:`${Date.now()}-${Math.random().toString(16).slice(2,8)}`,
       createdAt:new Date().toISOString(),
+      signature,
       input:lastResult.input,
       result:{purchaseLength:lastResult.purchaseLength,cycleLength:lastResult.cycleLength,targetQuantity:lastResult.targetQuantity}
-    };
-    const history=getHistory();history.unshift(item);setHistory(history);renderHistory();showToast('Расчёт сохранён');
+    });
+    setHistory(history);
   }
   function formatDate(iso){
     const d=new Date(iso);if(Number.isNaN(d.valueOf()))return '';
@@ -156,8 +172,10 @@
   function applyInput(data){for(const id of fields){const node=$(id);if(node)node.value=data[id]??'';}render();window.scrollTo({top:0,behavior:'smooth'});}
   function clearCalculator(){for(const id of fields){const node=$(id);if(node)node.value='';}renderNeutral();$('barDetails').open=false;showToast('Поля очищены');}
   function switchScreen(name){
-    $$('.screen').forEach(node=>node.classList.toggle('is-active',node.dataset.screen===name));
-    $$('.dock-item').forEach(node=>node.classList.toggle('is-active',node.dataset.target===name));
+    if(name==='history')persistCurrentSnapshot();
+    document.querySelector('.app-shell')?.setAttribute('data-view',name);
+    $('.screen').forEach(node=>node.classList.toggle('is-active',node.dataset.screen===name));
+    $('.dock-item').forEach(node=>node.classList.toggle('is-active',node.dataset.target===name));
     if(name==='history')renderHistory();
     window.scrollTo({top:0,behavior:'smooth'});
   }
@@ -189,14 +207,13 @@
     $('themeToggle')?.addEventListener('click',toggleTheme);
     $('installBtn')?.addEventListener('click',requestInstall);
     $('clearAll')?.addEventListener('click',clearCalculator);
-    $('saveBtn')?.addEventListener('click',saveCurrent);
     $('clearHistory')?.addEventListener('click',()=>{if(getHistory().length&&confirm('Удалить всю историю расчётов на этом устройстве?')){setHistory([]);renderHistory();showToast('История очищена');}});
     $$('.dock-item').forEach(btn=>btn.addEventListener('click',()=>switchScreen(btn.dataset.target)));
     $('closeIosHint')?.addEventListener('click',()=>{$('iosHint').hidden=true;});
     $('iosHint')?.addEventListener('click',e=>{if(e.target===$('iosHint'))$('iosHint').hidden=true;});
     window.addEventListener('online',updateOfflineState,{passive:true});
     window.addEventListener('offline',updateOfflineState,{passive:true});
-    renderNeutral();renderHistory();updateOfflineState();setupInstall();
+    document.querySelector('.app-shell')?.setAttribute('data-view','calc');renderNeutral();renderHistory();updateOfflineState();setupInstall();
   }
 
   init();

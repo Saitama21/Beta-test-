@@ -28,7 +28,7 @@
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
-  <div class="app-shell">
+  <div class="app-shell" data-view="calc">
     <header class="topbar">
       <div class="brand-block">
         <p class="eyebrow">ЦЕХОВОЙ КАЛЬКУЛЯТОР</p>
@@ -88,14 +88,13 @@
               <div class="hero-value"><strong id="purchaseMeters">—</strong><span>м</span></div>
               <p id="purchaseHint" class="result-hint">Заполни длину детали и количество</p>
             </div>
-            <img class="result-art" src="./assets/result-rod.webp" alt="Металлический пруток" width="126" height="90">
+            <img class="result-art" src="./assets/result-rod.webp" alt="Металлический пруток" width="104" height="74">
             <div class="result-stats">
               <div><span>Расход / деталь</span><strong id="cycleLength">—</strong></div>
               <div><span>Чистый размер</span><strong id="netLength">—</strong></div>
               <div><span>Потери</span><strong id="techLoss">—</strong></div>
             </div>
             <div id="warning" class="warning" hidden></div>
-            <button id="saveBtn" class="save-btn" type="button" disabled>Сохранить расчёт</button>
           </section>
 
           <details id="barDetails" class="bar-details">
@@ -127,19 +126,19 @@
       <section id="screen-history" class="screen" data-screen="history">
         <div class="history-head">
           <h2>История</h2>
-          <button id="clearHistory" class="text-btn danger" type="button">��� Очистить</button>
+          <button id="clearHistory" class="text-btn danger" type="button">��� Очистить</button>
         </div>
         <div id="historyList" class="history-list"></div>
         <div id="historyEmpty" class="history-empty">
           <strong>Пока пусто</strong>
-          <p>Сохрани расчёт — он останется на этом устройстве и без интернета.</p>
+          <p>Выполненные расчёты появятся здесь и останутся доступными офлайн.</p>
         </div>
       </section>
     </main>
 
     <nav class="dock" aria-label="Основная навигация">
-      <button class="dock-item is-active" type="button" data-target="calc"><span class="dock-symbol">▦</span><small>Расчёт</small></button>
-      <button class="dock-item" type="button" data-target="history"><span class="dock-symbol">↶</span><small>История</small></button>
+      <button class="dock-item is-active" type="button" data-target="calc"><span class="dock-icon dock-icon-calc" aria-hidden="true"></span><small>Расчёт</small></button>
+      <button class="dock-item" type="button" data-target="history"><span class="dock-icon dock-icon-history" aria-hidden="true"></span><small>История</small></button>
     </nav>
   </div>
 
