@@ -8,17 +8,15 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="CutCalc CNC">
-  <meta name="description" content="Offline-first цеховой калькулятор расхода прутка для токарных деталей.">
+  <meta name="description" content="Offline-first цеховой калькулятор расхода прутка.">
   <title>CutCalc CNC</title>
   <script>
-    (()=>{
-      try{
-        const saved=localStorage.getItem('cutcalc.theme.v2');
-        const mode=saved||'light';
-        document.documentElement.dataset.theme=mode;
-      }catch{}
-      if('serviceWorker' in navigator){
-        navigator.serviceWorker.register('./sw.js',{scope:'./',updateViaCache:'none'}).catch(()=>{});
+    (() => {
+      try {
+        document.documentElement.dataset.theme = localStorage.getItem('cutcalc.theme.v2') || 'light';
+      } catch {}
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js', { scope:'./', updateViaCache:'none' }).catch(() => {});
       }
     })();
   </script>
@@ -30,66 +28,65 @@
 <body>
   <div class="app-shell" data-view="calc">
     <header class="topbar">
-      <div class="brand-block">
-        <p class="eyebrow">ЦЕХОВОЙ КАЛЬКУЛЯТОР</p>
+      <div class="brand">
+        <p>ЦЕХОВОЙ КАЛЬКУЛЯТОР</p>
         <h1>CutCalc <span>CNC</span></h1>
       </div>
       <div class="top-actions">
-        <button id="themeToggle" class="icon-btn" type="button" aria-label="Сменить тему"><span class="sun-glyph">☼</span></button>
-        <button id="installBtn" class="icon-btn" type="button" aria-label="Установить приложение"><span class="download-glyph">↓</span></button>
+        <button id="themeToggle" class="icon-btn" type="button" aria-label="Сменить тему"><span>☼</span></button>
+        <button id="installBtn" class="icon-btn install-glyph" type="button" aria-label="Установить приложение">↓</button>
       </div>
     </header>
 
     <main class="content">
-      <section id="screen-calc" class="screen is-active" data-screen="calc">
+      <section class="screen is-active" data-screen="calc">
         <div class="utility-row">
-          <div id="offlineState" class="ready-pill"><span></span><b>Готов к работе</b></div>
-          <button id="clearAll" class="text-btn" type="button">Очистить всё</button>
+          <div id="offlineState" class="status"><i></i><span>Готов к работе</span></div>
+          <button id="clearAll" class="link-btn" type="button">Очистить всё</button>
         </div>
 
         <form id="calcForm" novalidate>
-          <section class="card input-card">
-            <div class="section-kicker">ЗАГОТОВКА</div>
-            <label class="field field-wide">
+          <section class="panel stock-panel">
+            <p class="kicker">ЗАГОТОВКА</p>
+            <label class="field">
               <span>Материал</span>
-              <input id="material" name="material" list="materialOptions" type="text" placeholder="AISI 304" autocomplete="off" maxlength="60">
-              <datalist id="materialOptions">
-                <option value="AISI 304"></option>
-                <option value="AISI 316"></option>
-                <option value="Сталь 20"></option>
-                <option value="Сталь 45"></option>
-                <option value="Полиамид PA6"></option>
-                <option value="PE 1000"></option>
-                <option value="Латунь Л63"></option>
-                <option value="Алюминий АД31"></option>
+              <input id="material" list="materials" type="text" placeholder="AISI 304" autocomplete="off">
+              <datalist id="materials">
+                <option value="AISI 304"></option><option value="AISI 316"></option>
+                <option value="Сталь 20"></option><option value="Сталь 45"></option>
+                <option value="Полиамид PA6"></option><option value="PE 1000"></option>
+                <option value="Латунь Л63"></option><option value="Алюминий АД31"></option>
                 <option value="Титан ВТ6"></option>
               </datalist>
             </label>
 
-            <div class="two-col">
-              <label class="field"><span>Диаметр</span><div class="input-unit"><input id="diameter" name="diameter" type="number" min="0" step="0.1" inputmode="decimal" placeholder="—"><b>мм</b></div></label>
-              <label class="field"><span>Длина детали *</span><div class="input-unit"><input id="partLength" name="partLength" type="number" min="0.1" step="0.1" inputmode="decimal" placeholder="—" required><b>мм</b></div></label>
+            <div class="cols-2">
+              <label class="field"><span>Диаметр</span><div class="unit"><input id="diameter" type="number" min="0" step="0.1" inputmode="decimal" placeholder="—"><b>мм</b></div></label>
+              <label class="field"><span>Длина детали *</span><div class="unit"><input id="partLength" type="number" min="0.1" step="0.1" inputmode="decimal" placeholder="—"><b>мм</b></div></label>
             </div>
-            <label class="field field-wide"><span>Количество *</span><div class="input-unit"><input id="quantity" name="quantity" type="number" min="1" step="1" inputmode="numeric" placeholder="—" required><b>шт</b></div></label>
+
+            <label class="field qty"><span>Количество *</span><div class="unit"><input id="quantity" type="number" min="1" step="1" inputmode="numeric" placeholder="—"><b>шт</b></div></label>
           </section>
 
-          <section class="card process-card">
-            <div class="section-kicker">ОБРАБОТКА</div>
-            <div class="three-col">
-              <label class="field compact"><span>Отрезной рез</span><div class="input-unit"><input id="kerf" name="kerf" type="number" min="0" step="0.1" inputmode="decimal" placeholder="—"><b>мм</b></div></label>
-              <label class="field compact"><span>Торцовка A</span><div class="input-unit"><input id="faceA" name="faceA" type="number" min="0" step="0.1" inputmode="decimal" placeholder="—"><b>мм</b></div></label>
-              <label class="field compact"><span>Торцовка B</span><div class="input-unit"><input id="faceB" name="faceB" type="number" min="0" step="0.1" inputmode="decimal" placeholder="—"><b>мм</b></div></label>
+          <section class="panel process-panel">
+            <p class="kicker">ОБРАБОТКА</p>
+            <div class="cols-3">
+              <label class="field mini"><span>Отрезной рез</span><div class="unit"><input id="kerf" type="number" min="0" step="0.1" inputmode="decimal" placeholder="—"><b>мм</b></div></label>
+              <label class="field mini"><span>Торцовка A</span><div class="unit"><input id="faceA" type="number" min="0" step="0.1" inputmode="decimal" placeholder="—"><b>мм</b></div></label>
+              <label class="field mini"><span>Торцовка B</span><div class="unit"><input id="faceB" type="number" min="0" step="0.1" inputmode="decimal" placeholder="—"><b>мм</b></div></label>
             </div>
           </section>
 
           <section class="result-card" aria-live="polite">
-            <div class="result-copy">
-              <p class="section-kicker">НУЖНО МАТЕРИАЛА</p>
-              <div class="hero-value"><strong id="purchaseMeters">—</strong><span>м</span></div>
-              <p id="purchaseHint" class="result-hint">Заполни длину детали и количество</p>
+            <div class="result-top">
+              <div class="result-copy">
+                <p class="kicker">НУЖНО МАТЕРИАЛА</p>
+                <div class="result-value"><strong id="purchaseMeters">—</strong><span>м</span></div>
+                <p id="purchaseHint">Заполни длину детали и количество</p>
+              </div>
+              <img src="./assets/result-rod.webp" class="result-art" alt="" width="113" height="93">
             </div>
-            <img class="result-art" src="./assets/result-rod.webp" alt="Металлический пруток" width="104" height="74">
-            <div class="result-stats">
+            <div class="metrics">
               <div><span>Расход / деталь</span><strong id="cycleLength">—</strong></div>
               <div><span>Чистый размер</span><strong id="netLength">—</strong></div>
               <div><span>Потери</span><strong id="techLoss">—</strong></div>
@@ -98,38 +95,34 @@
           </section>
 
           <details id="barDetails" class="bar-details">
-            <summary>
-              <span class="summary-icon">≡</span>
-              <span>Расчёт по пруткам</span>
-              <span class="summary-chevron">⌄</span>
-            </summary>
-            <div class="bar-details-body">
-              <div class="two-col">
-                <label class="field"><span>Длина прутка</span><div class="input-unit"><input id="stockLength" name="stockLength" type="number" min="1" step="1" inputmode="decimal" placeholder="—"><b>мм</b></div></label>
-                <label class="field"><span>Первая торцовка</span><div class="input-unit"><input id="stockFace" name="stockFace" type="number" min="0" step="0.1" inputmode="decimal" placeholder="—"><b>мм</b></div></label>
+            <summary><span class="bars-icon" aria-hidden="true"></span><strong>Расчёт по пруткам</strong><span class="chevron">⌄</span></summary>
+            <div class="bar-body">
+              <div class="cols-2">
+                <label class="field"><span>Длина прутка</span><div class="unit"><input id="stockLength" type="number" min="1" step="1" inputmode="decimal" placeholder="—"><b>мм</b></div></label>
+                <label class="field"><span>Первая торцовка</span><div class="unit"><input id="stockFace" type="number" min="0" step="0.1" inputmode="decimal" placeholder="—"><b>мм</b></div></label>
               </div>
-              <div class="two-col">
-                <label class="field"><span>Запас деталей</span><div class="input-unit"><input id="reservePct" name="reservePct" type="number" min="0" max="100" step="0.5" inputmode="decimal" placeholder="—"><b>%</b></div></label>
-                <div class="grip-box"><span>Мин. зажим</span><strong id="minGripValue">46 мм</strong></div>
+              <div class="cols-2 second-row">
+                <label class="field"><span>Запас деталей</span><div class="unit"><input id="reservePct" type="number" min="0" max="100" step="0.5" inputmode="decimal" placeholder="—"><b>%</b></div></label>
+                <div class="grip"><span>Мин. зажим</span><strong id="minGripValue">46 мм</strong></div>
               </div>
-              <div class="bar-result-grid">
+              <div class="bar-stats">
                 <div><span>Деталей / пруток</span><strong id="partsPerBar">—</strong></div>
                 <div><span>Прутков</span><strong id="barsCount">—</strong></div>
                 <div><span>Хвост</span><strong id="gripTail">—</strong></div>
-                <div><span>Последний остаток</span><strong id="remainderValue">—</strong></div>
+                <div><span>Остаток</span><strong id="remainderValue">—</strong></div>
               </div>
             </div>
           </details>
         </form>
       </section>
 
-      <section id="screen-history" class="screen" data-screen="history">
+      <section class="screen history-screen" data-screen="history">
         <div class="history-head">
           <h2>История</h2>
-          <button id="clearHistory" class="text-btn danger" type="button">��� Очистить</button>
+          <button id="clearHistory" class="link-btn" type="button">Очистить</button>
         </div>
         <div id="historyList" class="history-list"></div>
-        <div id="historyEmpty" class="history-empty">
+        <div id="historyEmpty" class="empty">
           <strong>Пока пусто</strong>
           <p>Выполненные расчёты появятся здесь и останутся доступными офлайн.</p>
         </div>
@@ -137,18 +130,22 @@
     </main>
 
     <nav class="dock" aria-label="Основная навигация">
-      <button class="dock-item is-active" type="button" data-target="calc"><span class="dock-icon dock-icon-calc" aria-hidden="true"></span><small>Расчёт</small></button>
-      <button class="dock-item" type="button" data-target="history"><span class="dock-icon dock-icon-history" aria-hidden="true"></span><small>История</small></button>
+      <button class="dock-item is-active" data-target="calc" type="button">
+        <span class="dock-icon calc-icon" aria-hidden="true"></span><small>Расчёт</small>
+      </button>
+      <button class="dock-item" data-target="history" type="button">
+        <span class="dock-icon history-icon" aria-hidden="true"></span><small>История</small>
+      </button>
     </nav>
   </div>
 
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
-  <div id="iosHint" class="modal-backdrop" hidden>
-    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="iosTitle">
+  <div id="iosHint" class="sheet-backdrop" hidden>
+    <div class="sheet">
       <div class="sheet-handle"></div>
-      <h2 id="iosTitle">Установить CutCalc</h2>
+      <h2>Установить CutCalc</h2>
       <p>В Safari нажми «Поделиться» → «На экран Домой». После первого полного запуска приложение работает без сети.</p>
-      <button id="closeIosHint" class="save-btn" type="button">Понятно</button>
+      <button id="closeIosHint" type="button">Понятно</button>
     </div>
   </div>
 

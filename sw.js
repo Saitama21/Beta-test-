@@ -1,29 +1,15 @@
 'use strict';
 
-const VERSION='2.1.0';
+const VERSION='2.2.0';
 const CACHE=`cutcalc-cnc-${VERSION}`;
 const APP_SHELL=[
-  './',
-  './index.html',
-  './styles.css',
-  './machine-config.js',
-  './calc-core.js',
-  './app.js',
-  './manifest.webmanifest',
-  './icons/icon-180.png',
-  './icons/icon-192.png',
-  './icons/icon-512.png',
-  './assets/result-rod.webp',
-  './assets/rod-steel.webp',
-  './assets/rod-brass.webp'
+  './','./index.html','./styles.css','./machine-config.js','./calc-core.js','./app.js','./manifest.webmanifest',
+  './icons/icon-180.png','./icons/icon-192.png','./icons/icon-512.png',
+  './assets/result-rod.webp','./assets/rod-steel.webp','./assets/rod-brass.webp'
 ];
 
 self.addEventListener('install',event=>{
-  event.waitUntil(
-    caches.open(CACHE)
-      .then(cache=>cache.addAll(APP_SHELL))
-      .then(()=>self.skipWaiting())
-  );
+  event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(APP_SHELL)).then(()=>self.skipWaiting()));
 });
 
 self.addEventListener('activate',event=>{
@@ -58,9 +44,6 @@ self.addEventListener('fetch',event=>{
   if(request.method!=='GET')return;
   const url=new URL(request.url);
   if(url.origin!==self.location.origin)return;
-  if(request.mode==='navigate'){
-    event.respondWith(cacheFirst(request,'./index.html'));
-    return;
-  }
+  if(request.mode==='navigate'){event.respondWith(cacheFirst(request,'./index.html'));return}
   event.respondWith(cacheFirst(request));
 });

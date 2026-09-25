@@ -8,52 +8,38 @@
   const $=id=>document.getElementById(id);
   const $$=sel=>Array.from(document.querySelectorAll(sel));
   const fields=['material','diameter','partLength','quantity','kerf','faceA','faceB','stockLength','stockFace','reservePct'];
-  const numberFields=fields.filter(id=>id!=='material');
+  const numeric=fields.filter(id=>id!=='material');
   const ru=new Intl.NumberFormat('ru-RU',{maximumFractionDigits:2});
   const ru3=new Intl.NumberFormat('ru-RU',{minimumFractionDigits:3,maximumFractionDigits:3});
   let lastResult=null;
-  let deferredInstallPrompt=null;
+  let installPrompt=null;
   let toastTimer=0;
 
-  function value(id){return $(id)?.value??'';}
-  function readInput(){
-    return {
-      material:value('material'),diameter:value('diameter'),partLength:value('partLength'),quantity:value('quantity'),
-      kerf:value('kerf'),faceA:value('faceA'),faceB:value('faceB'),stockLength:value('stockLength'),
-      stockFace:value('stockFace'),reservePct:value('reservePct'),minChuckGrip:MACHINE.minChuckGripMm
-    };
-  }
-  function hasCoreInput(){return String(value('partLength')).trim()!==''||String(value('quantity')).trim()!=='';}
-  function plural(n,one,few,many){const n10=n%10,n100=n%100;if(n10===1&&n100!==11)return one;if(n10>=2&&n10<=4&&(n100<12||n100>14))return few;return many;}
-  function isIos(){return /iphone|ipad|ipod/i.test(navigator.userAgent);}
-  function isStandalone(){return matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;}
+  const raw=id=>$(id)?.value??'';
+  const input=()=>({
+    material:raw('material'),diameter:raw('diameter'),partLength:raw('partLength'),quantity:raw('quantity'),
+    kerf:raw('kerf'),faceA:raw('faceA'),faceB:raw('faceB'),stockLength:raw('stockLength'),
+    stockFace:raw('stockFace'),reservePct:raw('reservePct'),minChuckGrip:MACHINE.minChuckGripMm
+  });
+  const hasCore=()=>String(raw('partLength')).trim()!==''||String(raw('quantity')).trim()!=='';
 
-  function setTheme(theme){
-    const safe=theme==='dark'?'dark':'light';
-    document.documentElement.dataset.theme=safe;
-    try{localStorage.setItem(THEME_KEY,safe);}catch{}
+  function theme(next){
+    const mode=next==='dark'?'dark':'light';
+    document.documentElement.dataset.theme=mode;
+    try{localStorage.setItem(THEME_KEY,mode)}catch{}
     const meta=document.querySelector('meta[name="theme-color"]');
-    if(meta)meta.content=safe==='dark'?'#0a0d11':'#f4f6f8';
-    const btn=$('themeToggle');
-    if(btn)btn.querySelector('span').textContent=safe==='dark'?'☾':'☼';
+    if(meta)meta.content=mode==='dark'?'#0d1014':'#f4f6f8';
+    $('themeToggle')?.querySelector('span')?.replaceChildren(document.createTextNode(mode==='dark'?'☾':'☼'));
   }
-  function initTheme(){
-    let saved='light';
-    try{saved=localStorage.getItem(THEME_KEY)||document.documentElement.dataset.theme||'light';}catch{}
-    setTheme(saved);
-  }
-  function toggleTheme(){setTheme(document.documentElement.dataset.theme==='dark'?'light':'dark');}
 
-  function showToast(message){
+  function toast(message){
     clearTimeout(toastTimer);
-    const node=$('toast');
-    if(!node)return;
-    node.textContent=message;
-    node.classList.add('show');
-    toastTimer=setTimeout(()=>node.classList.remove('show'),1800);
+    const node=$('toast'); if(!node)return;
+    node.textContent=message; node.classList.add('show');
+    toastTimer=setTimeout(()=>node.classList.remove('show'),1700);
   }
 
-  function renderNeutral(){
+  function resetResult(){
     lastResult=null;
     $('purchaseMeters').textContent='—';
     $('purchaseHint').textContent='Заполни длину детали и количество';
@@ -67,7 +53,7 @@
     $('warning').hidden=true;
   }
 
-  function renderInvalid(r){
+  function invalid(r){
     lastResult=r;
     $('purchaseMeters').textContent='—';
     $('purchaseHint').textContent='Нужны исходные данные';
@@ -83,10 +69,9 @@
   }
 
   function render(){
-    if(!hasCoreInput()){renderNeutral();return;}
-    const r=window.CutCalcCore.calculate(readInput());
-    if(!r.valid){renderInvalid(r);return;}
-
+    if(!hasCore()){resetResult();return}
+    const r=window.CutCalcCore.calculate(input());
+    if(!r.valid){invalid(r);return}
     lastResult=r;
     $('warning').hidden=true;
     $('purchaseMeters').textContent=ru3.format(r.purchaseLength/1000);
@@ -96,124 +81,94 @@
 
     if(r.mode==='direct'){
       $('purchaseHint').textContent=`${r.targetQuantity} шт × ${ru.format(r.cycleLength)} мм${r.input.reservePct>0?' · с запасом':''}`;
-      $('partsPerBar').textContent='—';
-      $('barsCount').textContent='—';
-      $('gripTail').textContent='—';
-      $('remainderValue').textContent='—';
+      $('partsPerBar').textContent='—';$('barsCount').textContent='—';$('gripTail').textContent='—';$('remainderValue').textContent='—';
       return;
     }
 
-    $('purchaseHint').textContent=`${r.bars} ${plural(r.bars,'пруток','прутка','прутков')} × ${ru3.format(r.input.stockLength/1000)} м · ${r.targetQuantity} шт`;
+    $('purchaseHint').textContent=`${r.bars} ${r.bars===1?'пруток':'прутка'} × ${ru3.format(r.input.stockLength/1000)} м · ${r.targetQuantity} шт`;
     $('partsPerBar').textContent=`${r.partsPerBar} шт`;
     $('barsCount').textContent=String(r.bars);
     $('gripTail').textContent=`${ru.format(r.fullBarGripTail)} мм`;
     $('remainderValue').textContent=r.reusableRemainder>0?`${ru.format(r.reusableRemainder)} мм`:'—';
   }
 
-  function getHistory(){
-    try{const data=JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');return Array.isArray(data)?data:[];}catch{return [];}
-  }
-  function setHistory(items){
-    try{localStorage.setItem(STORAGE_KEY,JSON.stringify(items.slice(0,MAX_HISTORY)));}catch{showToast('Не удалось сохранить локально');}
-  }
-  function historySignature(input,result){
-    return JSON.stringify({
-      material:input.material||'',
-      diameter:Number(input.diameter)||0,
-      partLength:Number(input.partLength)||0,
-      quantity:Number(input.quantity)||0,
-      kerf:Number(input.kerf)||0,
-      faceA:Number(input.faceA)||0,
-      faceB:Number(input.faceB)||0,
-      stockLength:Number(input.stockLength)||0,
-      stockFace:Number(input.stockFace)||0,
-      reservePct:Number(input.reservePct)||0,
-      purchaseLength:Number(result.purchaseLength)||0
-    });
-  }
-  function persistCurrentSnapshot(){
+  function history(){try{const v=JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');return Array.isArray(v)?v:[]}catch{return[]}}
+  function putHistory(items){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(items.slice(0,MAX_HISTORY)))}catch{toast('Не удалось сохранить локально')}}
+  function signature(i,r){return JSON.stringify({material:i.material||'',diameter:+i.diameter||0,partLength:+i.partLength||0,quantity:+i.quantity||0,kerf:+i.kerf||0,faceA:+i.faceA||0,faceB:+i.faceB||0,stockLength:+i.stockLength||0,stockFace:+i.stockFace||0,reservePct:+i.reservePct||0,purchaseLength:+r.purchaseLength||0})}
+  function saveSnapshot(){
     if(!lastResult?.valid)return;
-    const signature=historySignature(lastResult.input,lastResult);
-    const history=getHistory();
-    if(history.some(item=>item.signature===signature))return;
-    history.unshift({
-      id:`${Date.now()}-${Math.random().toString(16).slice(2,8)}`,
-      createdAt:new Date().toISOString(),
-      signature,
-      input:lastResult.input,
-      result:{purchaseLength:lastResult.purchaseLength,cycleLength:lastResult.cycleLength,targetQuantity:lastResult.targetQuantity}
-    });
-    setHistory(history);
+    const sig=signature(lastResult.input,lastResult);
+    const list=history();
+    if(list.some(x=>x.signature===sig))return;
+    list.unshift({id:`${Date.now()}-${Math.random().toString(16).slice(2,8)}`,createdAt:new Date().toISOString(),signature:sig,input:lastResult.input,result:{purchaseLength:lastResult.purchaseLength}});
+    putHistory(list);
   }
-  function formatDate(iso){
-    const d=new Date(iso);if(Number.isNaN(d.valueOf()))return '';
-    const now=new Date();const same=now.toDateString()===d.toDateString();
-    return same?`Сегодня, ${new Intl.DateTimeFormat('ru-RU',{hour:'2-digit',minute:'2-digit'}).format(d)}`:new Intl.DateTimeFormat('ru-RU',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}).format(d);
+  function dateText(iso){
+    const d=new Date(iso); if(Number.isNaN(d.valueOf()))return '';
+    const now=new Date();
+    return now.toDateString()===d.toDateString()
+      ? `Сегодня, ${new Intl.DateTimeFormat('ru-RU',{hour:'2-digit',minute:'2-digit'}).format(d)}`
+      : new Intl.DateTimeFormat('ru-RU',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}).format(d);
   }
-  function materialThumb(material){return /латун|brass|cuzn/i.test(material)?'./assets/rod-brass.webp':'./assets/rod-steel.webp';}
+  function esc(v){return String(v).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
+  function thumb(material){return /латун|brass|cuzn/i.test(material)?'./assets/rod-brass.webp':'./assets/rod-steel.webp'}
   function renderHistory(){
-    const list=$('historyList');const items=getHistory();
-    list.replaceChildren();$('historyEmpty').hidden=items.length>0;$('clearHistory').hidden=items.length===0;
+    const list=$('historyList'); const items=history();
+    list.replaceChildren(); $('historyEmpty').hidden=items.length>0; $('clearHistory').hidden=items.length===0;
     for(const item of items){
-      const card=document.createElement('button');card.type='button';card.className='history-card';
+      const b=document.createElement('button'); b.type='button'; b.className='history-card';
       const material=item.input.material||'Материал';
       const dia=item.input.diameter>0?`Ø ${ru.format(item.input.diameter)} мм`:'Ø —';
-      card.innerHTML=`
-        <img class="history-thumb" src="${materialThumb(material)}" alt="" width="58" height="48">
-        <span class="history-main"><strong>${escapeHtml(material)}</strong><small>${escapeHtml(dia)}</small><small>L ${ru.format(item.input.partLength)} мм&nbsp;&nbsp;•&nbsp;&nbsp;${item.input.quantity} шт</small></span>
-        <span class="history-result"><small>${formatDate(item.createdAt)}</small><strong>${ru3.format(item.result.purchaseLength/1000)} м</strong></span>
+      b.innerHTML=`<img class="history-thumb" src="${thumb(material)}" alt="">
+        <span class="history-main"><strong>${esc(material)}</strong><small>${esc(dia)}</small><small>L ${ru.format(item.input.partLength)} мм · ${item.input.quantity} шт</small></span>
+        <span class="history-result"><small>${dateText(item.createdAt)}</small><strong>${ru3.format(item.result.purchaseLength/1000)} м</strong></span>
         <span class="history-arrow">›</span>`;
-      card.addEventListener('click',()=>{applyInput(item.input);switchScreen('calc');showToast('Расчёт загружен');});
-      list.append(card);
+      b.addEventListener('click',()=>{load(item.input);show('calc');toast('Расчёт загружен')});
+      list.append(b);
     }
   }
-  function escapeHtml(value){return String(value).replace(/[&<>'"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));}
 
-  function applyInput(data){for(const id of fields){const node=$(id);if(node)node.value=data[id]??'';}render();window.scrollTo({top:0,behavior:'smooth'});}
-  function clearCalculator(){for(const id of fields){const node=$(id);if(node)node.value='';}renderNeutral();$('barDetails').open=false;showToast('Поля очищены');}
-  function switchScreen(name){
-    if(name==='history')persistCurrentSnapshot();
+  function load(data){for(const id of fields){const n=$(id);if(n)n.value=data[id]??''}render();window.scrollTo({top:0,behavior:'smooth'})}
+  function clearAll(){for(const id of fields){const n=$(id);if(n)n.value=''}resetResult();$('barDetails').open=false;toast('Поля очищены')}
+  function show(name){
+    if(name==='history')saveSnapshot();
     document.querySelector('.app-shell')?.setAttribute('data-view',name);
-    $('.screen').forEach(node=>node.classList.toggle('is-active',node.dataset.screen===name));
-    $('.dock-item').forEach(node=>node.classList.toggle('is-active',node.dataset.target===name));
+    $$('.screen').forEach(n=>n.classList.toggle('is-active',n.dataset.screen===name));
+    $$('.dock-item').forEach(n=>n.classList.toggle('is-active',n.dataset.target===name));
     if(name==='history')renderHistory();
     window.scrollTo({top:0,behavior:'smooth'});
   }
-  function updateOfflineState(){
-    const node=$('offlineState');if(!node)return;
-    const label=node.querySelector('b');
-    if(navigator.onLine){node.classList.remove('is-offline');label.textContent='Готов к работе';}
-    else{node.classList.add('is-offline');label.textContent='Офлайн';}
+  function network(){
+    const node=$('offlineState'); if(!node)return;
+    if(navigator.onLine){node.classList.remove('is-offline');node.querySelector('span').textContent='Готов к работе'}
+    else{node.classList.add('is-offline');node.querySelector('span').textContent='Офлайн'}
   }
-
-  function setupInstall(){
-    window.addEventListener('beforeinstallprompt',event=>{event.preventDefault();deferredInstallPrompt=event;});
-    window.addEventListener('appinstalled',()=>{deferredInstallPrompt=null;showToast('CutCalc установлен');});
+  function standalone(){return matchMedia('(display-mode: standalone)').matches||navigator.standalone===true}
+  function ios(){return /iphone|ipad|ipod/i.test(navigator.userAgent)}
+  async function install(){
+    if(standalone()){toast('Приложение уже установлено');return}
+    if(installPrompt){installPrompt.prompt();try{await installPrompt.userChoice}catch{}installPrompt=null;return}
+    if(ios())$('iosHint').hidden=false;else toast('Установка доступна из меню браузера');
   }
-  async function requestInstall(){
-    if(isStandalone()){showToast('Приложение уже установлено');return;}
-    if(deferredInstallPrompt){deferredInstallPrompt.prompt();try{await deferredInstallPrompt.userChoice;}catch{}deferredInstallPrompt=null;return;}
-    if(isIos())$('iosHint').hidden=false;else showToast('Установка доступна из меню браузера');
-  }
-  async function requestPersistentStorage(){try{if(navigator.storage?.persist)await navigator.storage.persist();}catch{}}
 
   function init(){
-    initTheme();
-    requestPersistentStorage();
+    let saved='light';try{saved=localStorage.getItem(THEME_KEY)||document.documentElement.dataset.theme||'light'}catch{}
+    theme(saved);
     $('minGripValue').textContent=`${ru.format(MACHINE.minChuckGripMm)} мм`;
-    numberFields.forEach(id=>{$(id)?.addEventListener('input',render);$(id)?.addEventListener('change',render);});
+    numeric.forEach(id=>{$(id)?.addEventListener('input',render);$(id)?.addEventListener('change',render)});
     $('material')?.addEventListener('input',render);
-    $('calcForm')?.addEventListener('submit',event=>event.preventDefault());
-    $('themeToggle')?.addEventListener('click',toggleTheme);
-    $('installBtn')?.addEventListener('click',requestInstall);
-    $('clearAll')?.addEventListener('click',clearCalculator);
-    $('clearHistory')?.addEventListener('click',()=>{if(getHistory().length&&confirm('Удалить всю историю расчётов на этом устройстве?')){setHistory([]);renderHistory();showToast('История очищена');}});
-    $$('.dock-item').forEach(btn=>btn.addEventListener('click',()=>switchScreen(btn.dataset.target)));
-    $('closeIosHint')?.addEventListener('click',()=>{$('iosHint').hidden=true;});
-    $('iosHint')?.addEventListener('click',e=>{if(e.target===$('iosHint'))$('iosHint').hidden=true;});
-    window.addEventListener('online',updateOfflineState,{passive:true});
-    window.addEventListener('offline',updateOfflineState,{passive:true});
-    document.querySelector('.app-shell')?.setAttribute('data-view','calc');renderNeutral();renderHistory();updateOfflineState();setupInstall();
+    $('calcForm')?.addEventListener('submit',e=>e.preventDefault());
+    $('themeToggle')?.addEventListener('click',()=>theme(document.documentElement.dataset.theme==='dark'?'light':'dark'));
+    $('installBtn')?.addEventListener('click',install);
+    $('clearAll')?.addEventListener('click',clearAll);
+    $('clearHistory')?.addEventListener('click',()=>{if(history().length&&confirm('Удалить всю историю расчётов?')){putHistory([]);renderHistory();toast('История очищена')}});
+    $$('.dock-item').forEach(b=>b.addEventListener('click',()=>show(b.dataset.target)));
+    $('closeIosHint')?.addEventListener('click',()=>{$('iosHint').hidden=true});
+    $('iosHint')?.addEventListener('click',e=>{if(e.target===$('iosHint'))$('iosHint').hidden=true});
+    window.addEventListener('online',network,{passive:true});window.addEventListener('offline',network,{passive:true});
+    window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installPrompt=e});
+    try{navigator.storage?.persist?.()}catch{}
+    resetResult();renderHistory();network();
   }
 
   init();
