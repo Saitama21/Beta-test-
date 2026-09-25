@@ -46,6 +46,6 @@ assert(/\.result-art\{[\s\S]*?background:none;[\s\S]*?border:0;[\s\S]*?border-ra
 
 console.log('UI and offline contract OK');
 
-assert(css.includes('linear-gradient(128deg,#39bdff'),'reference result card must use dual blue/amber rim lighting');
+assert(css.includes('linear-gradient(125deg,#3fc6ff'),'reference result card must use dual blue/amber rim lighting');
 assert(css.includes('max-width:235px'),'reference rod artwork must be prominent in the result card');
 assert(html.includes('Пруток из нержавеющей стали'),'result rod must be the reference artwork');
