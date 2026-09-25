@@ -13,7 +13,7 @@
   <script>
     (() => {
       try {
-        document.documentElement.dataset.theme = localStorage.getItem('cutcalc.theme.v4') || 'dark';
+        document.documentElement.dataset.theme = localStorage.getItem('cutcalc.theme.v5') || 'dark';
       } catch {}
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('./sw.js', { scope:'./', updateViaCache:'none' }).catch(() => {});
@@ -33,7 +33,7 @@
         <h1>CutCalc <span>CNC</span></h1>
       </div>
       <div class="top-actions">
-        <button id="themeToggle" class="icon-btn" type="button" aria-label="Сменить тему"><span>⚙</span></button>
+        <button id="themeToggle" class="icon-btn" type="button" aria-label="Включить светлый режим"><span id="themeIcon" class="theme-icon" aria-hidden="true">☀︎</span></button>
         <button id="installBtn" class="icon-btn install-glyph" type="button" aria-label="Установить приложение">↓</button>
       </div>
     </header>

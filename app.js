@@ -2,7 +2,7 @@
   'use strict';
 
   const STORAGE_KEY='cutcalc.history.v3';
-  const THEME_KEY='cutcalc.theme.v4';
+  const THEME_KEY='cutcalc.theme.v5';
   const MAX_HISTORY=60;
   const MACHINE=Object.freeze({minChuckGripMm:Math.max(0,Number(window.CUTCALC_MACHINE_CONFIG?.minChuckGripMm)||46)});
   const $=id=>document.getElementById(id);
@@ -28,7 +28,11 @@
     document.documentElement.dataset.theme=mode;
     try{localStorage.setItem(THEME_KEY,mode)}catch{}
     const meta=document.querySelector('meta[name="theme-color"]');
-    if(meta)meta.content=mode==='dark'?'#08111a':'#dfe8ef';
+    if(meta)meta.content=mode==='dark'?'#060c12':'#dfe8ef';
+    const icon=$('themeIcon');
+    if(icon)icon.textContent=mode==='dark'?'☀︎':'☾';
+    const toggle=$('themeToggle');
+    if(toggle)toggle.setAttribute('aria-label',mode==='dark'?'Включить светлый режим':'Включить тёмный режим');
   }
 
   function toast(message){
