@@ -8,6 +8,7 @@ const assert=(c,m)=>{if(!c){console.error('UI/OFFLINE TEST FAILED:',m);process.e
 assert(!html.includes('saveBtn'),'approved concept must not contain a save button');
 assert(!html.includes('screen-materials'),'materials screen must stay removed');
 assert((html.match(/class="dock-item/g)||[]).length===2,'dock must have exactly two items');
+
 assert(/\.dock\{[^}]*position:fixed/i.test(css),'dock must be fixed');
 assert(/\.dock\{[^}]*left:50%/i.test(css),'dock left must be 50%');
 assert(/\.dock\{[^}]*transform:translateX\(-50%\)/i.test(css),'dock must use translateX(-50%)');
@@ -15,24 +16,29 @@ assert(/\.dock\{[^}]*bottom:2px/i.test(css),'dock bottom must be 2px');
 assert(/\.dock\{[^}]*width:87%/i.test(css),'dock width must be 87%');
 assert(/\.dock\{[^}]*height:68px/i.test(css),'dock height must be 68px');
 assert(!/\.dock\{[^}]*safe-area/i.test(css),'dock must not depend on safe area');
-assert(/\.app-shell\{[^}]*min-height:100dvh/i.test(css),'app shell must use 100dvh');
+assert(/\.app-shell\{[^}]*min-height:100dvh/i.test(css),'app shell must use min-height:100dvh');
 assert(css.includes('var(--safe-bottom)'),'safe area must reserve content only');
-assert(/\.result-value strong\{[^}]*font-size:39px/i.test(css),'result typography must match compact concept');
+
+assert(/\.result-value strong\{[^}]*font-size:40px/i.test(css),'result typography must match the approved reference');
 assert(/\.bar-details summary\{[^}]*height:42px/i.test(css),'bar summary must be compact');
+assert(css.includes('--blue:#42b8ff'),'Liquid Steel v2.4 must expose the blue reflection token');
+assert(css.includes('--accent:#ff821d'),'Liquid Steel v2.4 must expose the amber token');
+assert(css.includes('radial-gradient(ellipse at 73% 2%'),'reference-style background reflections must be present');
+assert(css.includes('linear-gradient(155deg,var(--card-b),var(--card-a)'),'cards must use the darker graphite base');
 assert(!css.includes('!important'),'clean rebuild must not use override patches');
-assert(css.includes('--steel-blue:#45b8ff'),'Liquid Steel skin must expose the steel-blue rim-light token');
-assert(css.includes('--accent:#ff851f'),'Liquid Steel skin must expose the amber accent');
-assert(css.includes('radial-gradient(circle at 84% 4%'),'Liquid Steel background lighting must be present');
+
 assert(html.includes('data-theme="dark"'),'Liquid Steel Pro must boot in dark mode');
-assert(app.includes("cutcalc.theme.v4"),'Liquid Steel theme storage must use the v3 skin key');
+assert(html.includes('material-select'),'material field must render as selector-style input');
+assert(app.includes("cutcalc.theme.v4"),'Liquid Steel theme storage must use the v4 key');
+assert(app.includes("purchaseHint').hidden=true"),'valid result must hide the extra result hint line');
+assert(app.includes("scrollRestoration='manual'"),'Safari scroll restoration must be disabled');
+
 assert(!/https?:\/\//i.test(html+css+app),'runtime UI must not depend on remote resources');
 assert(app.includes('saveSnapshot'),'history must persist valid calculations without a save button');
 assert(sw.includes("const VERSION='2.4.0'"),'offline cache must be versioned');
 assert(sw.includes("'./assets/result-rod.webp'"),'result WebP must be precached');
 assert(sw.includes('cache.addAll(APP_SHELL)'),'offline shell must cache atomically');
 assert(!sw.includes('networkFirst'),'offline shell must not be network-first');
+assert(css.includes('background:none;border:0;border-radius:0;box-shadow:none'),'result WebP must render directly without a white tile');
+
 console.log('UI and offline contract OK');
-assert(html.includes('material-select'),'material field must render as selector-style input');
-assert(app.includes("purchaseHint').hidden=true"),'valid result must hide the extra hint line');
-assert(app.includes("scrollRestoration='manual'"),'Safari scroll restoration must be disabled');
-assert(css.includes('background:none;border:0;border-radius:0;box-shadow:none'),'result WebP must render without a card or white tile');
