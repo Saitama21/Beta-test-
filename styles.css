@@ -105,7 +105,7 @@ html[data-theme="dark"] .result-card{background:linear-gradient(135deg,var(--sur
 .chevron{justify-self:end;color:var(--muted);font-size:18px;transition:transform .18s ease}
 .bar-details[open] .chevron{transform:rotate(180deg)}
 .bar-body{padding:0 14px 14px;border-top:1px solid var(--line)}
-.bar-body>.cols-2{margin-top:12px}.second-row{margin-top:10px!important}
+.bar-body>.cols-2{margin-top:12px}.bar-body>.second-row{margin-top:10px}
 .grip{height:72px;border-radius:16px;border:1px solid var(--field-border);background:var(--field);display:flex;flex-direction:column;justify-content:center;padding:0 14px}
 .grip span{font-size:11px;color:var(--muted)}.grip strong{font-size:16px;margin-top:3px}
 .bar-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
